@@ -1,0 +1,44 @@
+# ===========================
+# Spring Boot / Java
+# ===========================
+backend/build/
+backend/.gradle/
+backend/out/
+*.class
+*.jar
+*.war
+*.ear
+!gradle-wrapper.jar
+
+# ===========================
+# React / Node.js
+# ===========================
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ===========================
+# 環境変数・機密情報
+# ===========================
+.env
+.env.local
+.env.production
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-secret.yml
+
+# ===========================
+# OS / エディター
+# ===========================
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# ===========================
+# ログ
+# ===========================
+*.log
+logs/
