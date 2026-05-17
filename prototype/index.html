@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeLine</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- モバイル用底部ナビ（認証済み時のみ表示） -->
+  <nav class="bottom-nav" id="bottom-nav" hidden>
+    <a class="bottom-nav__item" href="#timeline" title="タイムライン">🏠</a>
+    <a class="bottom-nav__item" href="#search" title="ユーザー検索">🔍</a>
+    <a class="bottom-nav__item" id="bottom-profile-link" href="#" title="プロフィール">👤</a>
+    <button class="bottom-nav__item" id="bottom-logout" title="ログアウト">↩</button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
