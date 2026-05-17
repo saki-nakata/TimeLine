@@ -1,6 +1,6 @@
 # TimeLine DB 設計書
 
-**バージョン:** 1.0
+**バージョン:** 1.1
 **作成日:** 2026-05-17
 **作成者:** Nakata Saki
 
@@ -29,6 +29,7 @@ erDiagram
     users {
         BIGSERIAL id PK
         VARCHAR(50) username UK "NOT NULL"
+        VARCHAR(100) display_name "NULLABLE"
         VARCHAR(255) email UK "NOT NULL"
         VARCHAR(255) password_hash "NULLABLE"
         VARCHAR(50) oauth_provider "NULLABLE"
@@ -96,6 +97,7 @@ erDiagram
 |---------|---------|------|-----------|------|
 | id | BIGSERIAL | NOT NULL | 自動採番 | 主キー |
 | username | VARCHAR(50) | NOT NULL | — | ユーザー名（@username）。一意 |
+| display_name | VARCHAR(100) | NULLABLE | — | 表示名。未設定の場合は username を表示 |
 | email | VARCHAR(255) | NOT NULL | — | メールアドレス。一意 |
 | password_hash | VARCHAR(255) | NULLABLE | — | bcrypt ハッシュ。OAuth のみの場合は NULL |
 | oauth_provider | VARCHAR(50) | NULLABLE | — | OAuth プロバイダー名（例: `google`） |
