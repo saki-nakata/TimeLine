@@ -34,6 +34,7 @@ erDiagram
         VARCHAR(50) oauth_provider "NULLABLE"
         VARCHAR(255) oauth_id "NULLABLE"
         VARCHAR(500) avatar_url "NULLABLE"
+        TEXT bio "NULLABLE"
         BIGINT follower_count "NOT NULL DEFAULT 0"
         BIGINT following_count "NOT NULL DEFAULT 0"
         TIMESTAMPTZ created_at "NOT NULL DEFAULT NOW()"
@@ -100,6 +101,7 @@ erDiagram
 | oauth_provider | VARCHAR(50) | NULLABLE | — | OAuth プロバイダー名（例: `google`） |
 | oauth_id | VARCHAR(255) | NULLABLE | — | OAuth プロバイダー側のユーザー ID |
 | avatar_url | VARCHAR(500) | NULLABLE | — | アバター画像の S3 URL |
+| bio | TEXT | NULLABLE | — | 自己紹介文 |
 | follower_count | BIGINT | NOT NULL | 0 | フォロワー数（非正規化カウンタ） |
 | following_count | BIGINT | NOT NULL | 0 | フォロー中ユーザー数（非正規化カウンタ） |
 | created_at | TIMESTAMPTZ | NOT NULL | NOW() | 登録日時 |
