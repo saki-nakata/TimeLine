@@ -30,6 +30,7 @@ backend/src/main/resources/application-secret.yml
 # Claude Code
 # ===========================
 .claude/settings.local.json
+.mcp.json
 
 # ===========================
 # OS / エディター
