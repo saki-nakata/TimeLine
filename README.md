@@ -8,16 +8,16 @@ X（旧 Twitter）をモデルにした SNS タイムラインアプリ。テキ
 
 | 役割 | 技術・バージョン |
 |------|----------------|
-| フロントエンド | React 19.2.5 + TypeScript 6.0.3 |
-| ビルドツール（FE） | Vite 8.0.10 |
-| スタイリング | Tailwind CSS 3.4.19 |
-| HTTP クライアント | Axios 1.7.9 |
-| バックエンド | Spring Boot 4.0.5 |
+| フロントエンド | React 19.2.6 + TypeScript 6.0.3 |
+| ビルドツール（FE） | Vite 8.0.13 |
+| スタイリング | Tailwind CSS 4.3.0 |
+| HTTP クライアント | Axios 1.16.1 |
+| バックエンド | Spring Boot 4.0.6 |
 | 言語 | Java 25 |
-| ビルドツール（BE） | Gradle 9.4.1（Kotlin DSL） |
-| O/R マッパー | MyBatis Spring Boot Starter 4.0.0 |
-| 認証 | JWT（HttpOnly Cookie） |
-| データベース | PostgreSQL 16 |
+| ビルドツール（BE） | Gradle 9.4.1（Groovy DSL） |
+| O/R マッパー | MyBatis Spring Boot Starter 4.0.1 |
+| 認証 | JWT（HttpOnly Cookie）+ リフレッシュトークン |
+| データベース | PostgreSQL 18.4 |
 | 画像ストレージ | AWS S3 |
 | コンテナ（開発） | Docker Compose v2（PostgreSQL のみ） |
 | ホスティング | AWS EC2 + RDS + ALB |
