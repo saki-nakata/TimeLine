@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { useAuth } from '../context/AuthContext';
@@ -24,12 +24,20 @@ export default function LoginPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    if (!email && !password) {
       setError('メールアドレスとパスワードを入力してください');
+      return;
+    }
+    if (!email) {
+      setError('メールアドレスを入力してください');
+      return;
+    }
+    if (!password) {
+      setError('パスワードを入力してください');
       return;
     }
 
@@ -59,7 +67,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className="w-full max-w-[430px] bg-white rounded-xl shadow-md" style={{ padding: '40px 36px' }}>
+      <div className="w-full max-w-[440px] bg-white rounded-xl shadow-md" style={{ padding: '40px 36px' }}>
 
         <div className="text-[32px] font-black text-[#1d9bf0] text-center mb-2 tracking-tight leading-none">
           TimeLine
