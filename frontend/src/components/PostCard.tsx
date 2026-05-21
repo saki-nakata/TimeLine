@@ -18,6 +18,18 @@ function relativeTime(isoString: string): string {
   return new Date(isoString).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
 }
 
+const IconHeart = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+
+const IconComment = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
 const IconEdit = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -72,11 +84,11 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit }: Post
         <div className="flex items-center">
           <div className="flex gap-4">
             <button className="flex items-center gap-1.5 text-[14px] text-[#536471] hover:text-[#f91880] hover:bg-[#fde8f0] px-2.5 py-1.5 rounded-full transition-colors">
-              <span>♡</span>
+              <IconHeart />
               <span>0</span>
             </button>
             <button className="flex items-center gap-1.5 text-[14px] text-[#536471] hover:text-[#1d9bf0] hover:bg-[#e8f5fe] px-2.5 py-1.5 rounded-full transition-colors">
-              <span>💬</span>
+              <IconComment />
               <span>0</span>
             </button>
           </div>
