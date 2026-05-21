@@ -10,10 +10,14 @@ import NewPostsBanner from './NewPostsBanner';
 
 type Tab = 'all' | 'following';
 
-export default function Timeline() {
+interface TimelineProps {
+  postFormOpen: boolean;
+  setPostFormOpen: (v: boolean) => void;
+}
+
+export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProps) {
   const { currentUser } = useAuth();
   const [tab, setTab] = useState<Tab>('all');
-  const [postFormOpen, setPostFormOpen] = useState(false);
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [pendingPosts, setPendingPosts] = useState<PostResponse[]>([]);
   // undefined=未初期化, null=末尾到達, number=次カーソル
@@ -107,7 +111,7 @@ export default function Timeline() {
     <div>
       <NewPostsBanner count={pendingPosts.length} onClick={handleShowPending} />
 
-      {/* タブ + 投稿ボタン */}
+      {/* タブ */}
       <div className="flex items-center border-b border-gray-200">
         <button className={tabClass('all')} onClick={() => setTab('all')}>
           全て
@@ -115,14 +119,6 @@ export default function Timeline() {
         <button className={tabClass('following')} onClick={() => setTab('following')}>
           フォロー中
         </button>
-        <div className="px-3 py-2">
-          <button
-            onClick={() => setPostFormOpen(true)}
-            className="rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] px-4 py-1.5 text-sm font-bold text-white transition whitespace-nowrap"
-          >
-            投稿する
-          </button>
-        </div>
       </div>
 
       <PostForm

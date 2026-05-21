@@ -24,7 +24,7 @@ export default function LoginPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const handleSubmit = async (e: SubmitEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f7f9f9] px-4">
+    <div className="min-h-screen flex">
       {toast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-[#00ba7c] text-white text-sm font-medium px-4 py-3 rounded-lg shadow-lg">
           <span>✓</span>
@@ -67,67 +67,74 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className="w-full max-w-[440px] bg-white rounded-xl shadow-md" style={{ padding: '40px 36px' }}>
-
-        <div className="text-[32px] font-black text-[#1d9bf0] text-center mb-2 tracking-tight leading-none">
+      {/* 左パネル：ブランドエリア */}
+      <div className="hidden md:flex w-1/3 shrink-0 bg-[#1d9bf0] flex-col items-center justify-center gap-6 px-12">
+        <div className="text-white text-[72px] font-black tracking-tight leading-none">
           TimeLine
         </div>
-        <div className="text-[22px] font-bold text-[#0f1419] text-center mb-7">ログイン</div>
+        <p className="text-white/80 text-xl font-medium">つながる、シェアする、今を刻む</p>
+      </div>
 
-        <form onSubmit={handleSubmit} noValidate>
-          {error && (
-            <div className="mb-4 text-sm text-[#f4212e] bg-[#fde8ea] rounded-lg px-3 py-2">
-              {error}
+      {/* 右パネル：フォームエリア */}
+      <div className="flex flex-col items-center justify-center flex-1 px-10 bg-white">
+        <div className="w-full max-w-[400px]">
+          <div className="text-[28px] font-bold text-[#0f1419] mb-10">ログイン</div>
+
+          <form onSubmit={handleSubmit} noValidate>
+            {error && (
+              <div className="mb-4 text-sm text-[#f4212e] bg-[#fde8ea] rounded-lg px-3 py-2">
+                {error}
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 mb-7">
+              <label className="text-[13px] font-semibold text-[#536471]" htmlFor="email">
+                メールアドレス
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                className="w-full border border-[#cfd9de] rounded-lg text-sm text-[#0f1419] outline-none focus:border-[#1d9bf0] focus:shadow-[0_0_0_3px_rgba(29,155,240,0.15)] transition"
+                style={{ padding: '13px 16px' }}
+              />
             </div>
-          )}
 
-          <div className="flex flex-col gap-1.5 mb-5">
-            <label className="text-[13px] font-semibold text-[#536471]" htmlFor="email">
-              メールアドレス
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              autoComplete="email"
-              className="w-full border border-[#cfd9de] rounded-lg text-sm text-[#0f1419] outline-none focus:border-[#1d9bf0] focus:shadow-[0_0_0_3px_rgba(29,155,240,0.15)] transition"
-              style={{ padding: '10px 14px' }}
-            />
+            <div className="flex flex-col gap-2 mb-10">
+              <label className="text-[13px] font-semibold text-[#536471]" htmlFor="password">
+                パスワード
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="パスワード"
+                autoComplete="current-password"
+                className="w-full border border-[#cfd9de] rounded-lg text-sm text-[#0f1419] outline-none focus:border-[#1d9bf0] focus:shadow-[0_0_0_3px_rgba(29,155,240,0.15)] transition"
+                style={{ padding: '13px 16px' }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#1d9bf0] hover:bg-[#1a8cd8] disabled:opacity-50 text-white font-bold rounded-full text-[15px] transition"
+              style={{ padding: '10px 20px' }}
+            >
+              {loading ? 'ログイン中...' : 'ログイン'}
+            </button>
+          </form>
+
+          <div className="mt-5 text-[14px] text-[#536471] text-center">
+            アカウントをお持ちでない方は{' '}
+            <Link to="/register" className="text-[#1d9bf0] font-semibold hover:underline">
+              新規登録
+            </Link>
           </div>
-
-          <div className="flex flex-col gap-1.5 mb-8">
-            <label className="text-[13px] font-semibold text-[#536471]" htmlFor="password">
-              パスワード
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="パスワード"
-              autoComplete="current-password"
-              className="w-full border border-[#cfd9de] rounded-lg text-sm text-[#0f1419] outline-none focus:border-[#1d9bf0] focus:shadow-[0_0_0_3px_rgba(29,155,240,0.15)] transition"
-              style={{ padding: '10px 14px' }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-[#1d9bf0] hover:bg-[#1a8cd8] disabled:opacity-50 text-white font-bold rounded-full text-[15px] transition"
-            style={{ padding: '10px 20px' }}
-          >
-            {loading ? 'ログイン中...' : 'ログイン'}
-          </button>
-        </form>
-
-        <div className="mt-5 text-[14px] text-[#536471] text-center">
-          アカウントをお持ちでない方は{' '}
-          <Link to="/register" className="text-[#1d9bf0] font-semibold hover:underline">
-            新規登録
-          </Link>
         </div>
       </div>
     </div>

@@ -20,6 +20,17 @@
     ]
   },
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"DB実装を行う際は必ずN+1問題を確認してください：(1)ループ内でDB問い合わせが発生していないか、(2)JOINを使って1回のクエリでまとめて取得できるか、を確認してから実装すること\"}}'",
+            "shell": "powershell"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
