@@ -21,11 +21,19 @@ public class PostController {
         this.postService = postService;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponse> getPost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(postService.getPost(id, userId));
+    }
+
     @GetMapping
     public ResponseEntity<TimelineResponse> getTimeline(
             @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "20") int limit) {
-        return ResponseEntity.ok(postService.getTimeline(cursor, limit));
+            @RequestParam(defaultValue = "20") int limit,
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(postService.getTimeline(cursor, limit, userId));
     }
 
     @PostMapping

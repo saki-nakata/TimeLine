@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import PostDetailPage from './pages/PostDetailPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useAuth();
@@ -41,6 +42,14 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <HomePage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/posts/:id"
+        element={
+          <PrivateRoute>
+            <PostDetailPage />
           </PrivateRoute>
         }
       />

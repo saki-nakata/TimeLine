@@ -1,7 +1,10 @@
 import api from './auth';
-import type { PostResponse, TimelineResponse } from '../types/post';
+import type { PostResponse, TimelineResponse, LikeResponse, CommentResponse } from '../types/post';
 
 export const postService = {
+  getPost: (id: number) =>
+    api.get<PostResponse>(`/posts/${id}`),
+
   getTimeline: (cursor?: number, limit = 20) =>
     api.get<TimelineResponse>('/posts', { params: { cursor, limit } }),
 
@@ -13,4 +16,19 @@ export const postService = {
 
   deletePost: (id: number) =>
     api.delete(`/posts/${id}`),
+
+  addLike: (postId: number) =>
+    api.post<LikeResponse>(`/posts/${postId}/likes`),
+
+  removeLike: (postId: number) =>
+    api.delete<LikeResponse>(`/posts/${postId}/likes`),
+
+  getComments: (postId: number) =>
+    api.get<CommentResponse[]>(`/posts/${postId}/comments`),
+
+  createComment: (postId: number, content: string) =>
+    api.post<CommentResponse>(`/posts/${postId}/comments`, { content }),
+
+  deleteComment: (postId: number, commentId: number) =>
+    api.delete(`/posts/${postId}/comments/${commentId}`),
 };

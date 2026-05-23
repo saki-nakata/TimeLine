@@ -6,6 +6,7 @@ import type { PostResponse } from '../types/post';
 import PostForm from './PostForm';
 import PostCard from './PostCard';
 import PostEditModal from './PostEditModal';
+import CommentModal from './CommentModal';
 import NewPostsBanner from './NewPostsBanner';
 
 type Tab = 'all' | 'following';
@@ -26,6 +27,7 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
   const [loading, setLoading] = useState(false);
   const [editingPost, setEditingPost] = useState<PostResponse | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [commentModalPost, setCommentModalPost] = useState<PostResponse | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
   const seenPostIdsRef = useRef(new Set<number>());
@@ -100,6 +102,46 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
     setEditingPost(null);
   };
 
+  const handleLikeToggle = async (post: PostResponse) => {
+    const wasLiked = post.likedByCurrentUser;
+    // 楽観的更新
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === post.id
+          ? { ...p, likedByCurrentUser: !wasLiked, likeCount: wasLiked ? p.likeCount - 1 : p.likeCount + 1 }
+          : p
+      )
+    );
+    try {
+      const res = wasLiked
+        ? await postService.removeLike(post.id)
+        : await postService.addLike(post.id);
+      // サーバーの確定値で上書き
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id
+            ? { ...p, likeCount: res.data.likeCount, likedByCurrentUser: res.data.likedByCurrentUser }
+            : p
+        )
+      );
+    } catch {
+      // エラー時はリバート
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === post.id
+            ? { ...p, likedByCurrentUser: wasLiked, likeCount: post.likeCount }
+            : p
+        )
+      );
+    }
+  };
+
+  const handleCommentCreated = (postId: number, newCount: number) => {
+    setPosts((prev) =>
+      prev.map((p) => (p.id === postId ? { ...p, commentCount: newCount } : p))
+    );
+  };
+
   const tabClass = (t: Tab) =>
     `flex-1 py-3 text-sm font-semibold transition border-b-2 ${
       tab === t
@@ -142,6 +184,8 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
                 currentUserId={currentUser?.id}
                 onDelete={setDeleteTargetId}
                 onEdit={setEditingPost}
+                onLikeToggle={handleLikeToggle}
+                onCommentClick={setCommentModalPost}
               />
             ))}
           </div>
@@ -163,6 +207,16 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
         onClose={() => setEditingPost(null)}
         onUpdated={handleUpdated}
       />
+
+      {commentModalPost && (
+        <CommentModal
+          open={true}
+          post={commentModalPost}
+          currentUser={currentUser}
+          onClose={() => setCommentModalPost(null)}
+          onCommentCreated={handleCommentCreated}
+        />
+      )}
 
       {deleteTargetId !== null && (
         <div

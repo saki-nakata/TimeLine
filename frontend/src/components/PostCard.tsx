@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { PostResponse } from '../types/post';
 
 interface PostCardProps {
@@ -5,6 +6,8 @@ interface PostCardProps {
   currentUserId: number | undefined;
   onDelete: (id: number) => void;
   onEdit: (post: PostResponse) => void;
+  onLikeToggle: (post: PostResponse) => void;
+  onCommentClick: (post: PostResponse) => void;
 }
 
 function relativeTime(isoString: string): string {
@@ -18,8 +21,10 @@ function relativeTime(isoString: string): string {
   return new Date(isoString).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
 }
 
-const IconHeart = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const IconHeart = ({ filled }: { filled: boolean }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
   </svg>
 );
@@ -47,12 +52,16 @@ const IconTrash = () => (
   </svg>
 );
 
-export default function PostCard({ post, currentUserId, onDelete, onEdit }: PostCardProps) {
+export default function PostCard({ post, currentUserId, onDelete, onEdit, onLikeToggle, onCommentClick }: PostCardProps) {
+  const navigate = useNavigate();
   const isOwner = post.userId === currentUserId;
   const displayName = post.displayName ?? post.username;
 
   return (
-    <article className="flex gap-3 px-4 py-3.5 border-b border-[#eff3f4] hover:bg-[#f7f9f9] transition-colors cursor-pointer">
+    <article
+      className="flex gap-3 px-4 py-3.5 border-b border-[#eff3f4] hover:bg-[#f7f9f9] transition-colors cursor-pointer"
+      onClick={() => navigate(`/posts/${post.id}`)}
+    >
       {/* アバター */}
       <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">
         {post.avatarUrl ? (
@@ -83,13 +92,23 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit }: Post
         {/* アクション */}
         <div className="flex items-center">
           <div className="flex gap-4">
-            <button className="flex items-center gap-1.5 text-[14px] text-[#536471] hover:text-[#f91880] hover:bg-[#fde8f0] px-2.5 py-1.5 rounded-full transition-colors">
-              <IconHeart />
-              <span>0</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); onLikeToggle(post); }}
+              className={`flex items-center gap-1.5 text-[14px] px-2.5 py-1.5 rounded-full transition-colors ${
+                post.likedByCurrentUser
+                  ? 'text-[#f91880]'
+                  : 'text-[#536471] hover:text-[#f91880] hover:bg-[#fde8f0]'
+              }`}
+            >
+              <IconHeart filled={post.likedByCurrentUser} />
+              <span>{post.likeCount}</span>
             </button>
-            <button className="flex items-center gap-1.5 text-[14px] text-[#536471] hover:text-[#1d9bf0] hover:bg-[#e8f5fe] px-2.5 py-1.5 rounded-full transition-colors">
+            <button
+              onClick={(e) => { e.stopPropagation(); onCommentClick(post); }}
+              className="flex items-center gap-1.5 text-[14px] text-[#536471] hover:text-[#1d9bf0] hover:bg-[#e8f5fe] px-2.5 py-1.5 rounded-full transition-colors"
+            >
               <IconComment />
-              <span>0</span>
+              <span>{post.commentCount}</span>
             </button>
           </div>
 
