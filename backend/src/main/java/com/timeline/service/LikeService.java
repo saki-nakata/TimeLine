@@ -22,8 +22,10 @@ public class LikeService {
         if (postMapper.findById(postId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません");
         }
-        likeMapper.insert(postId, userId);
-        postMapper.incrementLikeCount(postId);
+        int inserted = likeMapper.insert(postId, userId);
+        if (inserted > 0) {
+            postMapper.incrementLikeCount(postId);
+        }
         long count = likeMapper.countByPostId(postId);
         boolean liked = likeMapper.existsByPostIdAndUserId(postId, userId);
         return new LikeResponse(postId, count, liked);

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface LikeMapper {
 
-    void insert(@Param("postId") Long postId, @Param("userId") Long userId);
+    int insert(@Param("postId") Long postId, @Param("userId") Long userId);
 
     void delete(@Param("postId") Long postId, @Param("userId") Long userId);
 
