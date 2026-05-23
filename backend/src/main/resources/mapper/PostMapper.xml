@@ -5,11 +5,13 @@
 <mapper namespace="com.timeline.mapper.PostMapper">
 
     <resultMap id="PostResultMap" type="com.timeline.model.Post">
-        <id     property="id"        column="id"/>
-        <result property="userId"    column="user_id"/>
-        <result property="content"   column="content"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
+        <id     property="id"           column="id"/>
+        <result property="userId"       column="user_id"/>
+        <result property="content"      column="content"/>
+        <result property="createdAt"    column="created_at"/>
+        <result property="updatedAt"    column="updated_at"/>
+        <result property="likeCount"    column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
     </resultMap>
 
     <resultMap id="PostResponseResultMap" type="com.timeline.dto.PostResponse">
@@ -19,8 +21,11 @@
         <result property="displayName" column="display_name"/>
         <result property="avatarUrl"   column="avatar_url"/>
         <result property="content"     column="content"/>
-        <result property="createdAt"   column="created_at"/>
-        <result property="updatedAt"   column="updated_at"/>
+        <result property="createdAt"          column="created_at"/>
+        <result property="updatedAt"          column="updated_at"/>
+        <result property="likeCount"          column="like_count"/>
+        <result property="commentCount"       column="comment_count"/>
+        <result property="likedByCurrentUser" column="liked_by_current_user"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.timeline.model.Post" useGeneratedKeys="true" keyProperty="id">
@@ -32,9 +37,31 @@
         SELECT * FROM posts WHERE id = #{id} LIMIT 1
     </select>
 
+    <select id="findPostById" resultMap="PostResponseResultMap">
+        SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
+               u.username, u.display_name, u.avatar_url,
+               p.like_count,
+               p.comment_count,
+               (SELECT EXISTS(
+                   SELECT 1 FROM post_likes pl
+                   WHERE pl.post_id = p.id
+                     AND pl.user_id = #{currentUserId}
+               )) AS liked_by_current_user
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.id = #{id}
+    </select>
+
     <select id="findTimeline" resultMap="PostResponseResultMap">
         SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
-               u.username, u.display_name, u.avatar_url
+               u.username, u.display_name, u.avatar_url,
+               p.like_count,
+               p.comment_count,
+               (SELECT EXISTS(
+                   SELECT 1 FROM post_likes pl
+                   WHERE pl.post_id = p.id
+                     AND pl.user_id = #{currentUserId}
+               )) AS liked_by_current_user
         FROM posts p
         JOIN users u ON p.user_id = u.id
         <if test="cursor != null">
@@ -52,5 +79,21 @@
     <delete id="delete" parameterType="long">
         DELETE FROM posts WHERE id = #{id}
     </delete>
+
+    <update id="incrementLikeCount" parameterType="long">
+        UPDATE posts SET like_count = like_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="decrementLikeCount" parameterType="long">
+        UPDATE posts SET like_count = GREATEST(like_count - 1, 0) WHERE id = #{id}
+    </update>
+
+    <update id="incrementCommentCount" parameterType="long">
+        UPDATE posts SET comment_count = comment_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="decrementCommentCount" parameterType="long">
+        UPDATE posts SET comment_count = GREATEST(comment_count - 1, 0) WHERE id = #{id}
+    </update>
 
 </mapper>

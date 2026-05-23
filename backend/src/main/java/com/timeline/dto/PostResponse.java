@@ -14,6 +14,9 @@ public class PostResponse {
     private String content;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
+    private long likeCount;
+    private boolean likedByCurrentUser;
+    private long commentCount;
 
     public static PostResponse from(Post post, User author) {
         PostResponse res = new PostResponse();
@@ -51,4 +54,13 @@ public class PostResponse {
 
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public long getLikeCount() { return likeCount; }
+    public void setLikeCount(long likeCount) { this.likeCount = likeCount; }
+
+    public boolean isLikedByCurrentUser() { return likedByCurrentUser; }
+    public void setLikedByCurrentUser(boolean likedByCurrentUser) { this.likedByCurrentUser = likedByCurrentUser; }
+
+    public long getCommentCount() { return commentCount; }
+    public void setCommentCount(long commentCount) { this.commentCount = commentCount; }
 }

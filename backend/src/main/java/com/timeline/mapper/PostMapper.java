@@ -11,7 +11,16 @@ import java.util.List;
 public interface PostMapper {
     void insert(Post post);
     Post findById(Long id);
-    List<PostResponse> findTimeline(@Param("cursor") Long cursor, @Param("limit") int limit);
+    PostResponse findPostById(@Param("id") Long id, @Param("currentUserId") Long currentUserId);
+
+    List<PostResponse> findTimeline(
+            @Param("cursor") Long cursor,
+            @Param("limit") int limit,
+            @Param("currentUserId") Long currentUserId);
     void update(Post post);
     void delete(Long id);
+    void incrementLikeCount(Long id);
+    void decrementLikeCount(Long id);
+    void incrementCommentCount(Long id);
+    void decrementCommentCount(Long id);
 }

@@ -29,9 +29,17 @@ public class PostService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public TimelineResponse getTimeline(Long cursor, int limit) {
+    public PostResponse getPost(Long id, Long currentUserId) {
+        PostResponse post = postMapper.findPostById(id, currentUserId);
+        if (post == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません");
+        }
+        return post;
+    }
+
+    public TimelineResponse getTimeline(Long cursor, int limit, Long currentUserId) {
         int safeLimit = Math.min(limit, 50);
-        List<PostResponse> posts = postMapper.findTimeline(cursor, safeLimit + 1);
+        List<PostResponse> posts = postMapper.findTimeline(cursor, safeLimit + 1, currentUserId);
         boolean hasMore = posts.size() > safeLimit;
         if (hasMore) {
             posts = posts.subList(0, safeLimit);
