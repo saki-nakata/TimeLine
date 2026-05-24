@@ -37,7 +37,7 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
     loadingRef.current = true;
     setLoading(true);
     try {
-      const res = await postService.getTimeline(nextCursor ?? undefined);
+      const res = await postService.getTimeline(nextCursor ?? undefined, 20, tab);
       const { posts: newPosts, nextCursor: nc, hasMore: hm } = res.data;
       newPosts.forEach((p) => seenPostIdsRef.current.add(p.id));
       setPosts((prev) => [...prev, ...newPosts]);
@@ -47,11 +47,11 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
       loadingRef.current = false;
       setLoading(false);
     }
-  }, [hasMore, nextCursor]);
+  }, [hasMore, nextCursor, tab]);
 
-  // 初回ロード（マウント時のみ実行）
+  // 初回ロードとタブ変更後のロード
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { loadMore(); }, []);
+  useEffect(() => { loadMore(); }, [tab]);
 
   // スクロール末尾で追加ロード
   useEffect(() => {
@@ -142,6 +142,17 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
     );
   };
 
+  const handleTabSwitch = (newTab: Tab) => {
+    if (newTab === tab) return;
+    setPosts([]);
+    setNextCursor(undefined);
+    setHasMore(true);
+    setPendingPosts([]);
+    loadingRef.current = false;
+    seenPostIdsRef.current = new Set();
+    setTab(newTab);
+  };
+
   const tabClass = (t: Tab) =>
     `flex-1 py-3 text-sm font-semibold transition border-b-2 ${
       tab === t
@@ -155,10 +166,10 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
 
       {/* タブ */}
       <div className="flex items-center border-b border-gray-200">
-        <button className={tabClass('all')} onClick={() => setTab('all')}>
+        <button className={tabClass('all')} onClick={() => handleTabSwitch('all')}>
           全て
         </button>
-        <button className={tabClass('following')} onClick={() => setTab('following')}>
+        <button className={tabClass('following')} onClick={() => handleTabSwitch('following')}>
           フォロー中
         </button>
       </div>
@@ -169,36 +180,33 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
         onPostCreated={handlePostCreated}
       />
 
-      {tab === 'following' ? (
+      <div>
+        {posts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            currentUserId={currentUser?.id}
+            onDelete={setDeleteTargetId}
+            onEdit={setEditingPost}
+            onLikeToggle={handleLikeToggle}
+            onCommentClick={setCommentModalPost}
+          />
+        ))}
+      </div>
+      {tab === 'following' && !loading && posts.length === 0 && (
         <div className="text-center py-16 text-gray-400 text-sm">
-          <p className="text-lg font-semibold text-[#0f1419] mb-2">フォロー中のユーザーの投稿</p>
-          <p>フォロー機能は現在準備中です</p>
+          <p className="text-lg font-semibold text-[#0f1419] mb-2">まだ投稿はありません</p>
+          <p>フォローしているユーザーが投稿すると表示されます</p>
         </div>
-      ) : (
-        <>
-          <div>
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                currentUserId={currentUser?.id}
-                onDelete={setDeleteTargetId}
-                onEdit={setEditingPost}
-                onLikeToggle={handleLikeToggle}
-                onCommentClick={setCommentModalPost}
-              />
-            ))}
-          </div>
-          <div ref={sentinelRef} className="h-4" />
-          {loading && (
-            <div className="text-center py-6 text-gray-400 text-sm">読み込み中...</div>
-          )}
-          {!hasMore && posts.length > 0 && (
-            <div className="text-center py-6 text-gray-300 text-sm">
-              すべての投稿を読み込みました
-            </div>
-          )}
-        </>
+      )}
+      <div ref={sentinelRef} className="h-4" />
+      {loading && (
+        <div className="text-center py-6 text-gray-400 text-sm">読み込み中...</div>
+      )}
+      {!hasMore && posts.length > 0 && (
+        <div className="text-center py-6 text-gray-300 text-sm">
+          すべての投稿を読み込みました
+        </div>
       )}
 
       <PostEditModal

@@ -29,3 +29,7 @@ server:
 logging:
   level:
     com.timeline: INFO
+
+app:
+  upload:
+    dir: uploads

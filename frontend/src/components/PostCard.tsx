@@ -63,7 +63,11 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
       onClick={() => navigate(`/posts/${post.id}`)}
     >
       {/* アバター */}
-      <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">
+      <button
+        className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden"
+        onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.userId}`); }}
+        aria-label={`${displayName}のプロフィール`}
+      >
         {post.avatarUrl ? (
           <img src={post.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
         ) : (
@@ -71,14 +75,19 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
             {displayName.charAt(0).toUpperCase()}
           </div>
         )}
-      </div>
+      </button>
 
       {/* ボディ */}
       <div className="flex-1 min-w-0">
         {/* ヘッダー */}
         <div className="flex items-center justify-between gap-2 mb-1">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-bold text-[15px] text-[#0f1419] truncate">{displayName}</span>
+            <button
+              className="font-bold text-[15px] text-[#0f1419] truncate hover:underline"
+              onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.userId}`); }}
+            >
+              {displayName}
+            </button>
             <span className="text-[14px] text-[#536471] truncate">@{post.username}</span>
           </div>
           <span className="text-[14px] text-[#536471] flex-shrink-0">{relativeTime(post.createdAt)}</span>

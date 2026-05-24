@@ -32,7 +32,11 @@ public class PostController {
     public ResponseEntity<TimelineResponse> getTimeline(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(defaultValue = "all") String type,
             @AuthenticationPrincipal Long userId) {
+        if ("following".equals(type)) {
+            return ResponseEntity.ok(postService.getFollowingTimeline(cursor, limit, userId));
+        }
         return ResponseEntity.ok(postService.getTimeline(cursor, limit, userId));
     }
 

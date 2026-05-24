@@ -77,6 +77,28 @@ public class PostService {
         return PostResponse.from(post, author);
     }
 
+    public TimelineResponse getFollowingTimeline(Long cursor, int limit, Long currentUserId) {
+        int safeLimit = Math.min(limit, 50);
+        List<PostResponse> posts = postMapper.findFollowingTimeline(cursor, safeLimit + 1, currentUserId);
+        boolean hasMore = posts.size() > safeLimit;
+        if (hasMore) {
+            posts = posts.subList(0, safeLimit);
+        }
+        Long nextCursor = hasMore ? posts.get(posts.size() - 1).getId() : null;
+        return new TimelineResponse(posts, nextCursor, hasMore);
+    }
+
+    public TimelineResponse getUserPosts(Long userId, Long cursor, int limit, Long currentUserId) {
+        int safeLimit = Math.min(limit, 50);
+        List<PostResponse> posts = postMapper.findPostsByUserId(userId, cursor, safeLimit + 1, currentUserId);
+        boolean hasMore = posts.size() > safeLimit;
+        if (hasMore) {
+            posts = posts.subList(0, safeLimit);
+        }
+        Long nextCursor = hasMore ? posts.get(posts.size() - 1).getId() : null;
+        return new TimelineResponse(posts, nextCursor, hasMore);
+    }
+
     public void deletePost(Long postId, Long requesterId) {
         Post post = postMapper.findById(postId);
         if (post == null) {

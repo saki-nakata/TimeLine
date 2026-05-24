@@ -4,6 +4,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import PostDetailPage from './pages/PostDetailPage';
+import ProfilePage from './pages/ProfilePage';
+import FollowingPage from './pages/FollowingPage';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useAuth();
@@ -50,6 +52,22 @@ function AppRoutes() {
         element={
           <PrivateRoute>
             <PostDetailPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/profile/:userId"
+        element={
+          <PrivateRoute>
+            <ProfilePage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/following"
+        element={
+          <PrivateRoute>
+            <FollowingPage />
           </PrivateRoute>
         }
       />
