@@ -28,4 +28,7 @@ export const userService = {
 
   getFollowing: (userId: number) =>
     api.get<UserProfileResponse[]>(`/users/${userId}/following`),
+
+  searchUsers: (query: string) =>
+    api.get<UserProfileResponse[]>('/users/search', { params: { q: query } }),
 };

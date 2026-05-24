@@ -170,16 +170,16 @@ export default function PostDetailPage() {
                 {/* 投稿詳細 */}
                 <div className="px-4 pt-4 pb-3 border-b border-[#eff3f4]">
                   <div className="flex items-center justify-between mb-3">
-                    <button
-                      onClick={() => navigate(`/profile/${post.userId}`)}
-                      className="flex items-center gap-3 text-left group"
-                    >
+                    <div className="flex items-center gap-3">
                       <Avatar name={post.displayName ?? post.username} avatarUrl={post.avatarUrl} size={10} />
-                      <div>
-                        <p className="font-bold text-[15px] text-[#0f1419] group-hover:underline">{post.displayName ?? post.username}</p>
+                      <button
+                        onClick={() => navigate(`/profile/${post.userId}`)}
+                        className="text-left hover:underline"
+                      >
+                        <p className="font-bold text-[15px] text-[#0f1419]">{post.displayName ?? post.username}</p>
                         <p className="text-[14px] text-[#536471]">@{post.username}</p>
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                     {isOwner && (
                       <div className="flex items-center gap-1">
                         <button
@@ -208,9 +208,17 @@ export default function PostDetailPage() {
                     )}
                   </div>
 
-                  <p className="text-[20px] text-[#0f1419] leading-relaxed whitespace-pre-wrap break-words mb-4">
-                    {post.content}
-                  </p>
+                  {post.content && (
+                    <p className="text-[20px] text-[#0f1419] leading-relaxed whitespace-pre-wrap break-words mb-4">
+                      {post.content}
+                    </p>
+                  )}
+
+                  {post.imageUrl && (
+                    <div className="mb-4 rounded-xl overflow-hidden border border-gray-100">
+                      <img src={post.imageUrl} alt="投稿画像" className="w-full h-auto" />
+                    </div>
+                  )}
 
                   <p className="text-[15px] text-[#536471] mb-3 border-b border-[#eff3f4] pb-3">
                     {new Date(post.createdAt).toLocaleString('ja-JP', {
@@ -265,12 +273,9 @@ export default function PostDetailPage() {
                             key={c.id}
                             className={`flex gap-3 px-4 py-3 border-b border-[#eff3f4] transition-colors ${isConfirming ? 'bg-red-50' : ''}`}
                           >
-                            <button
-                              onClick={() => navigate(`/profile/${c.userId}`)}
-                              className="flex-shrink-0 hover:opacity-80 transition-opacity"
-                            >
+                            <div className="flex-shrink-0">
                               <Avatar name={name} avatarUrl={c.avatarUrl} size={9} />
-                            </button>
+                            </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0 min-w-0">

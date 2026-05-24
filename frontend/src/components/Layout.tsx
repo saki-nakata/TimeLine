@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PostForm from './PostForm';
+import SearchBar from './SearchBar';
 import type { PostResponse } from '../types/post';
 
 interface LayoutProps {
@@ -84,9 +85,11 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
             </button>
           </nav>
 
+          <SearchBar />
+
           <button
             onClick={handlePostClick}
-            className="mt-5 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold py-3 text-[15px] transition"
+            className="mt-2 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold py-3 text-[15px] transition"
           >
             投稿する
           </button>

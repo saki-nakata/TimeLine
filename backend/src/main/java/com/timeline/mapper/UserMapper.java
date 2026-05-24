@@ -16,6 +16,10 @@ public interface UserMapper {
     UserProfileResponse findProfileById(
             @Param("targetId") Long targetId,
             @Param("currentUserId") Long currentUserId);
+    java.util.List<UserProfileResponse> searchUsers(
+            @Param("query") String query,
+            @Param("currentUserId") Long currentUserId,
+            @Param("limit") int limit);
     void incrementFollowerCount(Long userId);
     void decrementFollowerCount(Long userId);
     void incrementFollowingCount(Long userId);

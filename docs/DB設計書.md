@@ -46,7 +46,8 @@ erDiagram
     posts {
         BIGSERIAL id PK
         BIGINT user_id FK "NOT NULL"
-        TEXT content "NOT NULL"
+        TEXT content "NULLABLE"
+        VARCHAR(500) image_url "NULLABLE"
         BIGINT like_count "NOT NULL DEFAULT 0"
         BIGINT comment_count "NOT NULL DEFAULT 0"
         TIMESTAMPTZ created_at "NOT NULL DEFAULT NOW()"
@@ -126,7 +127,8 @@ erDiagram
 |---------|---------|------|-----------|------|
 | id | BIGSERIAL | NOT NULL | 自動採番 | 主キー |
 | user_id | BIGINT | NOT NULL | — | 投稿者の users.id（外部キー） |
-| content | TEXT | NOT NULL | — | 投稿テキスト（最大 280 文字） |
+| content | TEXT | NULLABLE | — | 投稿テキスト（最大 280 文字）。image_url と少なくとも一方が非 NULL であること（アプリ層で強制） |
+| image_url | VARCHAR(500) | NULLABLE | — | 投稿画像の S3 URL。content と少なくとも一方が非 NULL であること |
 | like_count | BIGINT | NOT NULL | 0 | いいね数（非正規化カウンタ） |
 | comment_count | BIGINT | NOT NULL | 0 | コメント数（非正規化カウンタ） |
 | created_at | TIMESTAMPTZ | NOT NULL | NOW() | 投稿日時 |
@@ -138,7 +140,6 @@ erDiagram
 |--------|------|-----------|------|
 | posts_pkey | PRIMARY KEY | id | — |
 | posts_user_id_fkey | FOREIGN KEY | user_id → users(id) | ON DELETE CASCADE |
-| posts_content_length_check | CHECK | content | char_length(content) <= 280 |
 
 **インデックス:**
 

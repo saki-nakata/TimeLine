@@ -30,6 +30,7 @@ logging:
   level:
     com.timeline: INFO
 
-app:
-  upload:
-    dir: uploads
+aws:
+  s3:
+    bucket-name: ${AWS_S3_BUCKET_NAME:saki-timeline-images}
+    region: ${AWS_S3_REGION:ap-northeast-1}

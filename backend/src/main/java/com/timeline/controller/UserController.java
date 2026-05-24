@@ -6,9 +6,9 @@ import com.timeline.dto.UpdateProfileRequest;
 import com.timeline.dto.UserProfileResponse;
 
 import java.util.List;
-import com.timeline.service.AvatarStorageService;
 import com.timeline.service.FollowService;
 import com.timeline.service.PostService;
+import com.timeline.service.S3StorageService;
 import com.timeline.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,15 +25,22 @@ public class UserController {
 
     private final UserService userService;
     private final FollowService followService;
-    private final AvatarStorageService avatarStorageService;
+    private final S3StorageService s3StorageService;
     private final PostService postService;
 
     public UserController(UserService userService, FollowService followService,
-                          AvatarStorageService avatarStorageService, PostService postService) {
+                          S3StorageService s3StorageService, PostService postService) {
         this.userService = userService;
         this.followService = followService;
-        this.avatarStorageService = avatarStorageService;
+        this.s3StorageService = s3StorageService;
         this.postService = postService;
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<UserProfileResponse>> searchUsers(
+            @RequestParam String q,
+            @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(userService.searchUsers(q, currentUserId));
     }
 
     @GetMapping("/{userId}")
@@ -62,7 +69,7 @@ public class UserController {
         if (!userId.equals(currentUserId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "他のユーザーのアバターを変更できません");
         }
-        String avatarUrl = avatarStorageService.store(file);
+        String avatarUrl = s3StorageService.storeAvatar(file);
         return ResponseEntity.ok(userService.updateAvatar(userId, avatarUrl));
     }
 

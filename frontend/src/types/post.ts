@@ -4,7 +4,8 @@ export interface PostResponse {
   username: string;
   displayName: string | null;
   avatarUrl: string | null;
-  content: string;
+  content: string | null;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
   likeCount: number;

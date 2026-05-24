@@ -79,6 +79,21 @@
         WHERE u.id = #{targetId}
     </select>
 
+    <select id="searchUsers" resultMap="UserProfileResultMap">
+        SELECT u.id, u.username, u.display_name, u.email, u.avatar_url, u.bio,
+               u.follower_count, u.following_count, u.created_at,
+               EXISTS(
+                   SELECT 1 FROM user_follows uf
+                   WHERE uf.follower_id  = #{currentUserId}
+                     AND uf.following_id = u.id
+               ) AS followed_by_current_user
+        FROM users u
+        WHERE u.username     ILIKE '%' || #{query} || '%'
+           OR u.display_name ILIKE '%' || #{query} || '%'
+        ORDER BY u.username
+        LIMIT #{limit}
+    </select>
+
     <update id="incrementFollowerCount" parameterType="long">
         UPDATE users SET follower_count = follower_count + 1 WHERE id = #{userId}
     </update>

@@ -17,6 +17,7 @@ public class PostResponse {
     private long likeCount;
     private boolean likedByCurrentUser;
     private long commentCount;
+    private String imageUrl;
 
     public static PostResponse from(Post post, User author) {
         PostResponse res = new PostResponse();
@@ -26,6 +27,7 @@ public class PostResponse {
         res.displayName = author.getDisplayName();
         res.avatarUrl = author.getAvatarUrl();
         res.content = post.getContent();
+        res.imageUrl = post.getImageUrl();
         res.createdAt = post.getCreatedAt();
         res.updatedAt = post.getUpdatedAt();
         return res;
@@ -63,4 +65,7 @@ public class PostResponse {
 
     public long getCommentCount() { return commentCount; }
     public void setCommentCount(long commentCount) { this.commentCount = commentCount; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Size;
 
 public class CreateCommentRequest {
 
-    @NotBlank
-    @Size(min = 1, max = 280)
+    @NotBlank(message = "コメント内容は必須です")
+    @Size(min = 1, max = 280, message = "コメントは1〜280文字で入力してください")
     private String content;
 
     public String getContent() {
