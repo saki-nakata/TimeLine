@@ -18,7 +18,7 @@ X（旧 Twitter）をモデルにした SNS タイムラインアプリ。テキ
 | O/R マッパー | MyBatis Spring Boot Starter 4.0.1 |
 | 認証 | JWT（HttpOnly Cookie）+ リフレッシュトークン |
 | データベース | PostgreSQL 18.4 |
-| 画像ストレージ | AWS S3 |
+| 画像ストレージ | ローカルファイルシステム（開発）/ AWS S3（本番環境予定） |
 | コンテナ（開発） | Docker Compose v2（PostgreSQL のみ） |
 | ホスティング | AWS EC2 + RDS + ALB |
 
@@ -33,7 +33,7 @@ X（旧 Twitter）をモデルにした SNS タイムラインアプリ。テキ
 | 投稿 | テキスト投稿（最大 280 文字）/ 画像付き投稿 / 投稿編集 / 投稿削除 |
 | いいね | いいね / いいね取り消し / いいね数表示 |
 | コメント | コメント投稿 / コメント一覧表示 / コメント削除 |
-| フォロー | フォロー / アンフォロー / フォロワー・フォロー中数表示 |
+| フォロー | フォロー / アンフォロー / フォロワー・フォロー中数表示 / フォロー中ユーザー一覧 |
 | ユーザー | ユーザー名検索 / プロフィール表示（アイコン・自己紹介）/ プロフィール編集 |
 
 ---
@@ -60,10 +60,9 @@ TimeLine/
 │   ├── index.html                 # エントリーポイント（ブラウザで直接開くだけで動作）
 │   ├── style.css
 │   └── app.js
-├── frontend/                      # React アプリケーション（予定）
-├── backend/                       # Spring Boot アプリケーション（予定）
-├── db/                            # DB 初期化スクリプト（予定）
-└── docker-compose.yml             # ローカル開発用 PostgreSQL（予定）
+├── frontend/                      # React アプリケーション
+├── backend/                       # Spring Boot アプリケーション
+└── docker-compose.yml             # ローカル開発用 PostgreSQL
 ```
 
 ---
@@ -113,8 +112,8 @@ cd backend
 
 # 4. フロントエンド起動（別ターミナル）
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 | サービス | URL |
@@ -139,10 +138,10 @@ npm run dev
 ### フロントエンド
 
 ```bash
-npm run dev            # 開発サーバー起動
-npm run build          # 本番ビルド
-npm run lint           # ESLint 実行
-npm run typecheck      # TypeScript 型チェック
+pnpm run dev           # 開発サーバー起動
+pnpm run build         # 本番ビルド
+pnpm run lint          # ESLint 実行
+pnpm run typecheck     # TypeScript 型チェック
 ```
 
 ---
@@ -160,8 +159,9 @@ npm run typecheck      # TypeScript 型チェック
 | [要件定義書](docs/要件定義書.md) | 機能要件・非機能要件・技術スタック |
 | [インフラ構成書](docs/インフラ構成書.md) | AWS 構成・デプロイフロー |
 | [DB 設計書](docs/DB設計書.md) | ER 図・テーブル定義 |
-| [画面設計書](docs/画面設計書.md) | ワイヤーフレーム（全 7 画面） |
+| [画面設計書](docs/画面設計書.md) | ワイヤーフレーム（全 8 画面） |
 | [画面遷移図](docs/画面遷移図.md) | 画面間の遷移フロー |
+| [シーケンス図](docs/シーケンス図.md) | 認証フロー・プロフィール編集のコンポーネント間シーケンス |
 | [タイムライン機能定義書](docs/機能定義書/タイムライン機能定義書.md) | タイムライン機能の詳細仕様 |
 | [投稿機能定義書](docs/機能定義書/投稿機能定義書.md) | 投稿機能の詳細仕様 |
 | [いいね機能定義書](docs/機能定義書/いいね機能定義書.md) | いいね機能の詳細仕様 |

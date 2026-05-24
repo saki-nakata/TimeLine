@@ -17,6 +17,18 @@ public interface PostMapper {
             @Param("cursor") Long cursor,
             @Param("limit") int limit,
             @Param("currentUserId") Long currentUserId);
+
+    List<PostResponse> findFollowingTimeline(
+            @Param("cursor") Long cursor,
+            @Param("limit") int limit,
+            @Param("currentUserId") Long currentUserId);
+
+    List<PostResponse> findPostsByUserId(
+            @Param("userId") Long userId,
+            @Param("cursor") Long cursor,
+            @Param("limit") int limit,
+            @Param("currentUserId") Long currentUserId);
+
     void update(Post post);
     void delete(Long id);
     void incrementLikeCount(Long id);

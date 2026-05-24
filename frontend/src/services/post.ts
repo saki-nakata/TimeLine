@@ -5,8 +5,8 @@ export const postService = {
   getPost: (id: number) =>
     api.get<PostResponse>(`/posts/${id}`),
 
-  getTimeline: (cursor?: number, limit = 20) =>
-    api.get<TimelineResponse>('/posts', { params: { cursor, limit } }),
+  getTimeline: (cursor?: number, limit = 20, type: 'all' | 'following' = 'all') =>
+    api.get<TimelineResponse>('/posts', { params: { cursor, limit, type } }),
 
   createPost: (content: string) =>
     api.post<PostResponse>('/posts', { content }),

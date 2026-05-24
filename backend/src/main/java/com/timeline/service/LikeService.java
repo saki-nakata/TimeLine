@@ -35,8 +35,10 @@ public class LikeService {
         if (postMapper.findById(postId) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "投稿が見つかりません");
         }
-        likeMapper.delete(postId, userId);
-        postMapper.decrementLikeCount(postId);
+        int deleted = likeMapper.delete(postId, userId);
+        if (deleted > 0) {
+            postMapper.decrementLikeCount(postId);
+        }
         long count = likeMapper.countByPostId(postId);
         boolean liked = likeMapper.existsByPostIdAndUserId(postId, userId);
         return new LikeResponse(postId, count, liked);

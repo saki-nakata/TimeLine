@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timeline.mapper.FollowMapper">
+
+    <insert id="insert">
+        INSERT INTO user_follows (follower_id, following_id)
+        VALUES (#{followerId}, #{followingId})
+        ON CONFLICT DO NOTHING
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM user_follows
+        WHERE follower_id = #{followerId}
+          AND following_id = #{followingId}
+    </delete>
+
+    <select id="exists" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM user_follows
+            WHERE follower_id = #{followerId}
+              AND following_id = #{followingId}
+        )
+    </select>
+
+    <resultMap id="UserProfileResultMap" type="com.timeline.dto.UserProfileResponse">
+        <id     property="id"                     column="id"/>
+        <result property="username"               column="username"/>
+        <result property="displayName"            column="display_name"/>
+        <result property="email"                  column="email"/>
+        <result property="avatarUrl"              column="avatar_url"/>
+        <result property="bio"                    column="bio"/>
+        <result property="followerCount"          column="follower_count"/>
+        <result property="followingCount"         column="following_count"/>
+        <result property="createdAt"              column="created_at"/>
+        <result property="followedByCurrentUser"  column="followed_by_current_user"/>
+    </resultMap>
+
+    <select id="findFollowing" resultMap="UserProfileResultMap">
+        SELECT u.id, u.username, u.display_name, u.email, u.avatar_url, u.bio,
+               u.follower_count, u.following_count, u.created_at,
+               EXISTS(
+                   SELECT 1 FROM user_follows uf2
+                   WHERE uf2.follower_id  = #{currentUserId}
+                     AND uf2.following_id = u.id
+               ) AS followed_by_current_user
+        FROM users u
+        INNER JOIN user_follows uf ON uf.following_id = u.id
+        WHERE uf.follower_id = #{userId}
+        ORDER BY uf.created_at DESC
+    </select>
+
+</mapper>

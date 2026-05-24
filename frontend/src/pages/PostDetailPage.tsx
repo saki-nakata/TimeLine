@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { postService } from '../services/post';
 import type { PostResponse, CommentResponse } from '../types/post';
+import Layout from '../components/Layout';
 import PostEditModal from '../components/PostEditModal';
 
 const MAX_CHARS = 280;
 
-function relativeTime(isoString: string): string {
+function relativeTime(isoString: string) {
   const diff = Date.now() - new Date(isoString).getTime();
   const sec = Math.floor(diff / 1000);
   if (sec < 60) return `${sec}秒`;
@@ -33,12 +34,6 @@ function Avatar({ name, avatarUrl, size = 10 }: { name: string; avatarUrl: strin
   );
 }
 
-const IconHome = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-  </svg>
-);
-
 const IconHeart = ({ filled }: { filled: boolean }) => (
   <svg width="20" height="20" viewBox="0 0 24 24"
     fill={filled ? 'currentColor' : 'none'}
@@ -50,10 +45,10 @@ const IconHeart = ({ filled }: { filled: boolean }) => (
 export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth();
+  const { currentUser } = useAuth();
 
   const [post, setPost] = useState<PostResponse | null>(null);
-  const [loadError, setLoadError] = useState('');
+  const [fetchError, setFetchError] = useState('');
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [content, setContent] = useState('');
@@ -62,17 +57,16 @@ export default function PostDetailPage() {
   const [editingPost, setEditingPost] = useState<PostResponse | null>(null);
   const [deletePostConfirm, setDeletePostConfirm] = useState(false);
   const [confirmDeleteCommentId, setConfirmDeleteCommentId] = useState<number | null>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
   const postId = Number(id);
+  const loadError = isNaN(postId) ? '不正なURLです' : fetchError;
 
   useEffect(() => {
-    if (isNaN(postId)) {
-      setLoadError('不正なURLです');
-      return;
-    }
+    if (isNaN(postId)) return;
     postService.getPost(postId)
       .then(res => setPost(res.data))
-      .catch(() => setLoadError('投稿が見つかりません'));
+      .catch(() => setFetchError('投稿が見つかりません'));
     postService.getComments(postId)
       .then(res => setComments(res.data))
       .catch(() => {})
@@ -91,7 +85,7 @@ export default function PostDetailPage() {
     }
   };
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!post) return;
     const trimmed = content.trim();
@@ -143,45 +137,15 @@ export default function PostDetailPage() {
     setEditingPost(null);
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
   const isOwner = post?.userId === currentUser?.id;
   const remaining = MAX_CHARS - content.length;
   const isOverLimit = remaining < 0;
   const canSubmit = content.trim().length > 0 && !isOverLimit && !submitting;
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
-      <div className="max-w-[960px] ml-[12%] mr-auto flex h-full">
-        {/* サイドバー */}
-        <aside className="w-64 shrink-0 h-full flex flex-col px-4 py-4 mr-4">
-          <div className="text-[22px] font-black text-[#1d9bf0] tracking-tight px-3 mb-4">
-            TimeLine
-          </div>
-          <nav className="flex flex-col gap-1">
-            <button
-              onClick={() => navigate('/home')}
-              className="flex items-center gap-4 px-3 py-3 rounded-full font-bold text-[#0f1419] hover:bg-gray-100 text-[17px] transition-colors text-left w-full"
-            >
-              <IconHome />
-              <span>ホーム</span>
-            </button>
-          </nav>
-          <div className="mt-auto">
-            <button
-              onClick={handleLogout}
-              className="w-full text-left px-3 py-3 rounded-full text-[15px] font-semibold text-[#536471] hover:bg-[#f7f9f9] transition"
-            >
-              ログアウト
-            </button>
-          </div>
-        </aside>
-
-        {/* メインコンテンツ */}
-        <main className="flex-1 border-l border-[#eff3f4] h-full flex flex-col">
+    <>
+    <Layout fullHeight>
+      <div className="border-l border-[#eff3f4] h-full flex flex-col">
           {/* 戻るボタン */}
           <div className="bg-white border-b border-[#eff3f4] shrink-0">
             <button
@@ -206,13 +170,16 @@ export default function PostDetailPage() {
                 {/* 投稿詳細 */}
                 <div className="px-4 pt-4 pb-3 border-b border-[#eff3f4]">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => navigate(`/profile/${post.userId}`)}
+                      className="flex items-center gap-3 text-left group"
+                    >
                       <Avatar name={post.displayName ?? post.username} avatarUrl={post.avatarUrl} size={10} />
                       <div>
-                        <p className="font-bold text-[15px] text-[#0f1419]">{post.displayName ?? post.username}</p>
+                        <p className="font-bold text-[15px] text-[#0f1419] group-hover:underline">{post.displayName ?? post.username}</p>
                         <p className="text-[14px] text-[#536471]">@{post.username}</p>
                       </div>
-                    </div>
+                    </button>
                     {isOwner && (
                       <div className="flex items-center gap-1">
                         <button
@@ -265,13 +232,16 @@ export default function PostDetailPage() {
                       <span>{post.likeCount}</span>
                       <span className="text-[14px]">いいね</span>
                     </button>
-                    <div className="flex items-center gap-1.5 text-[15px] text-[#536471]">
+                    <button
+                      onClick={() => { commentInputRef.current?.focus(); commentInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                      className="flex items-center gap-1.5 text-[15px] text-[#536471] hover:text-[#1d9bf0] hover:bg-[#e8f5fe] px-2.5 py-1.5 rounded-full transition-colors"
+                    >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                       </svg>
                       <span>{post.commentCount}</span>
                       <span className="text-[14px]">コメント</span>
-                    </div>
+                    </button>
                   </div>
                 </div>
 
@@ -295,12 +265,20 @@ export default function PostDetailPage() {
                             key={c.id}
                             className={`flex gap-3 px-4 py-3 border-b border-[#eff3f4] transition-colors ${isConfirming ? 'bg-red-50' : ''}`}
                           >
-                            <Avatar name={name} avatarUrl={c.avatarUrl} size={9} />
+                            <button
+                              onClick={() => navigate(`/profile/${c.userId}`)}
+                              className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                            >
+                              <Avatar name={name} avatarUrl={c.avatarUrl} size={9} />
+                            </button>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0 min-w-0">
-                                  <span className="font-bold text-[14px] text-[#0f1419] truncate">{name}</span>
-                                  <span className="text-[13px] text-[#536471]">@{c.username}</span>
+                                  <button
+                                    onClick={() => navigate(`/profile/${c.userId}`)}
+                                    className="font-bold text-[14px] text-[#0f1419] truncate hover:underline"
+                                  >{name}</button>
+                                  <button onClick={() => navigate(`/profile/${c.userId}`)} className="text-[13px] text-[#536471] hover:underline">@{c.username}</button>
                                   <span className="text-[13px] text-[#536471]">·</span>
                                   <span className="text-[13px] text-[#536471]">{relativeTime(c.createdAt)}</span>
                                 </div>
@@ -380,6 +358,7 @@ export default function PostDetailPage() {
                     isOverLimit ? 'border-[#f4212e]' : 'border-[#cfd9de] focus-within:border-[#1d9bf0]'
                   }`}>
                     <input
+                      ref={commentInputRef}
                       type="text"
                       value={content}
                       onChange={e => setContent(e.target.value)}
@@ -401,8 +380,8 @@ export default function PostDetailPage() {
               </form>
             </div>
           )}
-        </main>
       </div>
+    </Layout>
 
       {editingPost && (
         <PostEditModal
@@ -441,6 +420,6 @@ export default function PostDetailPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
