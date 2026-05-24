@@ -18,7 +18,7 @@ X（旧 Twitter）をモデルにした SNS タイムラインアプリ。テキ
 | O/R マッパー | MyBatis Spring Boot Starter 4.0.1 |
 | 認証 | JWT（HttpOnly Cookie）+ リフレッシュトークン |
 | データベース | PostgreSQL 18.4 |
-| 画像ストレージ | ローカルファイルシステム（開発）/ AWS S3（本番環境予定） |
+| 画像ストレージ | AWS S3 |
 | コンテナ（開発） | Docker Compose v2（PostgreSQL のみ） |
 | ホスティング | AWS EC2 + RDS + ALB |
 

@@ -15,9 +15,10 @@ import CommentModal from '../components/CommentModal';
 interface UserPostsListProps {
   userId: number;
   currentUserId: number | undefined;
+  externalNew?: PostResponse | null;
 }
 
-function UserPostsList({ userId, currentUserId }: UserPostsListProps) {
+function UserPostsList({ userId, currentUserId, externalNew }: UserPostsListProps) {
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [nextCursor, setNextCursor] = useState<number | null | undefined>(undefined);
   const [hasMore, setHasMore] = useState(true);
@@ -27,6 +28,7 @@ function UserPostsList({ userId, currentUserId }: UserPostsListProps) {
   const [commentModalPost, setCommentModalPost] = useState<PostResponse | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const loadingRef = useRef(false);
+  const handledNewIdRef = useRef<number | null>(null);
 
   const loadMore = useCallback(async () => {
     if (loadingRef.current || !hasMore) return;
@@ -46,6 +48,13 @@ function UserPostsList({ userId, currentUserId }: UserPostsListProps) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadMore(); }, []);
+
+  useEffect(() => {
+    if (externalNew && externalNew.id !== handledNewIdRef.current) {
+      handledNewIdRef.current = externalNew.id;
+      setPosts((prev) => [externalNew, ...prev]);
+    }
+  }, [externalNew]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -121,6 +130,7 @@ function UserPostsList({ userId, currentUserId }: UserPostsListProps) {
           onEdit={setEditingPost}
           onLikeToggle={handleLikeToggle}
           onCommentClick={setCommentModalPost}
+          onProfileClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         />
       ))}
       <div ref={sentinelRef} className="h-4" />
@@ -195,6 +205,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [loadedUserId, setLoadedUserId] = useState<number | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [latestPost, setLatestPost] = useState<PostResponse | null>(null);
 
   const targetId = Number(userId);
   const isOwner = currentUser?.id === targetId;
@@ -236,7 +247,7 @@ export default function ProfilePage() {
   if (!profile) return null;
 
   return (
-    <Layout>
+    <Layout onPostCreated={isOwner ? setLatestPost : undefined}>
     <div className="border-x border-gray-200">
       {/* ヘッダー */}
       <div className="sticky top-0 z-10 bg-white/80 backdrop-blur px-4 py-3 flex items-center gap-6 border-b border-gray-200">
@@ -318,7 +329,7 @@ export default function ProfilePage() {
       </div>
 
       {/* 投稿一覧（key={targetId} でユーザー切り替え時に自動リセット） */}
-      <UserPostsList key={targetId} userId={targetId} currentUserId={currentUser?.id} />
+      <UserPostsList key={targetId} userId={targetId} currentUserId={currentUser?.id} externalNew={latestPost} />
 
       {editOpen && (
         <ProfileEditModal

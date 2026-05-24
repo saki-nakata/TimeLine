@@ -34,6 +34,11 @@ export default function ProfileEditModal({ profile, onClose, onUpdated }: Profil
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズは5MB以下にしてください');
+      e.target.value = '';
+      return;
+    }
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
@@ -47,7 +52,7 @@ export default function ProfileEditModal({ profile, onClose, onUpdated }: Profil
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting || usernameError) return;
     setSubmitting(true);
@@ -101,21 +106,28 @@ export default function ProfileEditModal({ profile, onClose, onUpdated }: Profil
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* アイコン */}
           <div className="flex items-center gap-4">
-            <div
+            {/* opacity-[0.01]: Chrome は opacity:0 の file input のダイアログを開かない */}
+            <label
               className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-200 cursor-pointer flex-shrink-0"
-              onClick={() => fileInputRef.current?.click()}
             >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleAvatarChange}
+                className="absolute inset-0 w-full h-full cursor-pointer opacity-[0.01]"
+              />
               {currentAvatar ? (
-                <img src={currentAvatar} alt="アイコン" className="w-full h-full object-cover" />
+                <img src={currentAvatar} alt="アイコン" className="w-full h-full object-cover pointer-events-none" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400 text-3xl font-bold">
+                <div className="w-full h-full flex items-center justify-center text-gray-400 text-3xl font-bold pointer-events-none">
                   {profile.username.charAt(0).toUpperCase()}
                 </div>
               )}
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
                 <span className="text-white text-xs font-bold">変更</span>
               </div>
-            </div>
+            </label>
             <div>
               <button
                 type="button"
@@ -126,13 +138,6 @@ export default function ProfileEditModal({ profile, onClose, onUpdated }: Profil
               </button>
               <p className="text-xs text-gray-400 mt-1">JPEG / PNG / GIF / WebP、最大5MB</p>
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              className="hidden"
-              onChange={handleAvatarChange}
-            />
           </div>
 
           {/* ユーザー名 */}

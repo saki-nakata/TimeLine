@@ -8,6 +8,7 @@
         <id     property="id"           column="id"/>
         <result property="userId"       column="user_id"/>
         <result property="content"      column="content"/>
+        <result property="imageUrl"     column="image_url"/>
         <result property="createdAt"    column="created_at"/>
         <result property="updatedAt"    column="updated_at"/>
         <result property="likeCount"    column="like_count"/>
@@ -21,6 +22,7 @@
         <result property="displayName" column="display_name"/>
         <result property="avatarUrl"   column="avatar_url"/>
         <result property="content"     column="content"/>
+        <result property="imageUrl"           column="image_url"/>
         <result property="createdAt"          column="created_at"/>
         <result property="updatedAt"          column="updated_at"/>
         <result property="likeCount"          column="like_count"/>
@@ -29,8 +31,8 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.timeline.model.Post" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO posts (user_id, content, created_at, updated_at)
-        VALUES (#{userId}, #{content}, #{createdAt}, #{updatedAt})
+        INSERT INTO posts (user_id, content, image_url, created_at, updated_at)
+        VALUES (#{userId}, #{content}, #{imageUrl}, #{createdAt}, #{updatedAt})
     </insert>
 
     <select id="findById" parameterType="long" resultMap="PostResultMap">
@@ -38,7 +40,7 @@
     </select>
 
     <select id="findPostById" resultMap="PostResponseResultMap">
-        SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
+        SELECT p.id, p.user_id, p.content, p.image_url, p.created_at, p.updated_at,
                u.username, u.display_name, u.avatar_url,
                p.like_count,
                p.comment_count,
@@ -53,7 +55,7 @@
     </select>
 
     <select id="findTimeline" resultMap="PostResponseResultMap">
-        SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
+        SELECT p.id, p.user_id, p.content, p.image_url, p.created_at, p.updated_at,
                u.username, u.display_name, u.avatar_url,
                p.like_count,
                p.comment_count,
@@ -72,7 +74,7 @@
     </select>
 
     <select id="findFollowingTimeline" resultMap="PostResponseResultMap">
-        SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
+        SELECT p.id, p.user_id, p.content, p.image_url, p.created_at, p.updated_at,
                u.username, u.display_name, u.avatar_url,
                p.like_count,
                p.comment_count,
@@ -92,7 +94,7 @@
     </select>
 
     <select id="findPostsByUserId" resultMap="PostResponseResultMap">
-        SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
+        SELECT p.id, p.user_id, p.content, p.image_url, p.created_at, p.updated_at,
                u.username, u.display_name, u.avatar_url,
                p.like_count,
                p.comment_count,
@@ -112,7 +114,7 @@
     </select>
 
     <update id="update" parameterType="com.timeline.model.Post">
-        UPDATE posts SET content = #{content}, updated_at = #{updatedAt}
+        UPDATE posts SET content = #{content}, image_url = #{imageUrl}, updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
 

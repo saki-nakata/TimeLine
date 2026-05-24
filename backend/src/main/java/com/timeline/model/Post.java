@@ -10,6 +10,7 @@ public class Post {
     private OffsetDateTime updatedAt;
     private long likeCount;
     private long commentCount;
+    private String imageUrl;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -31,4 +32,7 @@ public class Post {
 
     public long getCommentCount() { return commentCount; }
     public void setCommentCount(long commentCount) { this.commentCount = commentCount; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

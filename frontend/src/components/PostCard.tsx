@@ -8,6 +8,7 @@ interface PostCardProps {
   onEdit: (post: PostResponse) => void;
   onLikeToggle: (post: PostResponse) => void;
   onCommentClick: (post: PostResponse) => void;
+  onProfileClick?: () => void;
 }
 
 function relativeTime(isoString: string): string {
@@ -52,7 +53,7 @@ const IconTrash = () => (
   </svg>
 );
 
-export default function PostCard({ post, currentUserId, onDelete, onEdit, onLikeToggle, onCommentClick }: PostCardProps) {
+export default function PostCard({ post, currentUserId, onDelete, onEdit, onLikeToggle, onCommentClick, onProfileClick }: PostCardProps) {
   const navigate = useNavigate();
   const isOwner = post.userId === currentUserId;
   const displayName = post.displayName ?? post.username;
@@ -65,7 +66,7 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
       {/* アバター */}
       <button
         className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden"
-        onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.userId}`); }}
+        onClick={(e) => { e.stopPropagation(); if (!onProfileClick) navigate(`/profile/${post.userId}`); }}
         aria-label={`${displayName}のプロフィール`}
       >
         {post.avatarUrl ? (
@@ -84,7 +85,7 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
           <div className="flex items-center gap-1.5 min-w-0">
             <button
               className="font-bold text-[15px] text-[#0f1419] truncate hover:underline"
-              onClick={(e) => { e.stopPropagation(); navigate(`/profile/${post.userId}`); }}
+              onClick={(e) => { e.stopPropagation(); if (onProfileClick) { onProfileClick(); } else { navigate(`/profile/${post.userId}`); } }}
             >
               {displayName}
             </button>
@@ -94,9 +95,23 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
         </div>
 
         {/* 本文 */}
-        <p className="text-[15px] text-[#0f1419] leading-relaxed whitespace-pre-wrap break-words mb-2.5">
-          {post.content}
-        </p>
+        {post.content && (
+          <p className="text-[15px] text-[#0f1419] leading-relaxed whitespace-pre-wrap break-words mb-2.5">
+            {post.content}
+          </p>
+        )}
+
+        {/* 投稿画像 */}
+        {post.imageUrl && (
+          <div className="mb-2.5 rounded-xl overflow-hidden border border-gray-100">
+            <img
+              src={post.imageUrl}
+              alt="投稿画像"
+              className="w-full h-auto"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
 
         {/* アクション */}
         <div className="flex items-center">

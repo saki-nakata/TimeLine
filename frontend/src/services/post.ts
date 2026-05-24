@@ -8,11 +8,24 @@ export const postService = {
   getTimeline: (cursor?: number, limit = 20, type: 'all' | 'following' = 'all') =>
     api.get<TimelineResponse>('/posts', { params: { cursor, limit, type } }),
 
-  createPost: (content: string) =>
-    api.post<PostResponse>('/posts', { content }),
+  createPost: (content: string | null, image: File | null) => {
+    const formData = new FormData();
+    if (content) formData.append('content', content);
+    if (image) formData.append('image', image);
+    return api.post<PostResponse>('/posts', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 
-  updatePost: (id: number, content: string) =>
-    api.put<PostResponse>(`/posts/${id}`, { content }),
+  updatePost: (id: number, content: string | null, image: File | null, removeImage: boolean) => {
+    const formData = new FormData();
+    if (content) formData.append('content', content);
+    if (image) formData.append('image', image);
+    formData.append('removeImage', String(removeImage));
+    return api.put<PostResponse>(`/posts/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 
   deletePost: (id: number) =>
     api.delete(`/posts/${id}`),

@@ -10,8 +10,8 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const url: string = error.config?.url ?? '';
-    // 認証エンドポイント自体は無限ループを防ぐためリトライしない
-    if (url.startsWith('/auth/')) {
+    // /auth/refresh 自体が失敗した場合は無限ループを防ぐためリトライしない
+    if (url === '/auth/refresh') {
       return Promise.reject(error);
     }
     if (error.response?.status === 401 && !error.config._retry) {

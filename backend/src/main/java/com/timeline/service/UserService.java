@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -47,6 +48,13 @@ public class UserService {
         user.setUpdatedAt(OffsetDateTime.now());
         userMapper.update(user);
         return userMapper.findProfileById(userId, userId);
+    }
+
+    public List<UserProfileResponse> searchUsers(String query, Long currentUserId) {
+        if (query == null || query.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "検索キーワードを入力してください");
+        }
+        return userMapper.searchUsers(query.strip(), currentUserId, 20);
     }
 
     public UserProfileResponse updateAvatar(Long userId, String avatarUrl) {
