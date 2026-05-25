@@ -326,6 +326,7 @@ export default function ProfilePage() {
             <span className="text-gray-500 ml-1">フォロワー</span>
           </span>
         </div>
+
       </div>
 
       {/* 投稿一覧（key={targetId} でユーザー切り替え時に自動リセット） */}

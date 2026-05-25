@@ -76,7 +76,7 @@ export default function LoginPage() {
       </div>
 
       {/* 右パネル：フォームエリア */}
-      <div className="flex flex-col items-center justify-center flex-1 px-10 bg-white">
+      <div className="flex flex-col items-center justify-center flex-1 px-4 sm:px-10 bg-white">
         <div className="w-full max-w-[400px]">
           <div className="text-[28px] font-bold text-[#0f1419] mb-10">ログイン</div>
 

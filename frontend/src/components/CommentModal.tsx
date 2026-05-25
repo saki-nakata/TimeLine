@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { postService } from '../services/post';
 import type { PostResponse } from '../types/post';
 import type { UserResponse } from '../types/user';
+import Avatar from './Avatar';
 
 interface CommentModalProps {
   open: boolean;
@@ -12,22 +13,6 @@ interface CommentModalProps {
 }
 
 const MAX_CHARS = 280;
-
-function Avatar({ name, avatarUrl, size = 10 }: { name: string; avatarUrl: string | null; size?: number }) {
-  const cls = `w-${size} h-${size} rounded-full overflow-hidden flex-shrink-0`;
-  return (
-    <div className={cls}>
-      {avatarUrl ? (
-        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-white font-bold bg-[#1d9bf0]"
-          style={{ fontSize: size * 1.6 }}>
-          {name.charAt(0).toUpperCase()}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function CircleProgress({ remaining, max }: { remaining: number; max: number }) {
   const r = 10;
