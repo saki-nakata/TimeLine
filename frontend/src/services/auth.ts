@@ -10,8 +10,9 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const url: string = error.config?.url ?? '';
-    // /auth/refresh 自体が失敗した場合は無限ループを防ぐためリトライしない
-    if (url === '/auth/refresh') {
+    // /auth/refresh と /auth/me はリトライしない
+    // /auth/me は AuthContext が自前で 401 を catch するため interceptor 不要
+    if (url === '/auth/refresh' || url === '/auth/me') {
       return Promise.reject(error);
     }
     if (error.response?.status === 401 && !error.config._retry) {
@@ -20,7 +21,9 @@ api.interceptors.response.use(
         await api.post('/auth/refresh');
         return api(error.config);
       } catch {
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
     }

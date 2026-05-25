@@ -53,7 +53,7 @@ public class AuthController {
         authService.logout(rawRefreshToken);
         clearCookie(response, ACCESS_COOKIE_NAME);
         clearCookie(response, REFRESH_COOKIE_NAME);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/refresh")

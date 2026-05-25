@@ -5,6 +5,7 @@ import { postService } from '../services/post';
 import type { PostResponse, CommentResponse } from '../types/post';
 import Layout from '../components/Layout';
 import PostEditModal from '../components/PostEditModal';
+import Avatar from '../components/Avatar';
 
 const MAX_CHARS = 280;
 
@@ -17,21 +18,6 @@ function relativeTime(isoString: string) {
   const hr = Math.floor(min / 60);
   if (hr < 24) return `${hr}時間`;
   return new Date(isoString).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
-}
-
-function Avatar({ name, avatarUrl, size = 10 }: { name: string; avatarUrl: string | null; size?: number }) {
-  return (
-    <div className={`w-${size} h-${size} rounded-full overflow-hidden flex-shrink-0`}>
-      {avatarUrl ? (
-        <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-white font-bold bg-[#1d9bf0]"
-          style={{ fontSize: size * 1.6 }}>
-          {name.charAt(0).toUpperCase()}
-        </div>
-      )}
-    </div>
-  );
 }
 
 const IconHeart = ({ filled }: { filled: boolean }) => (
@@ -344,7 +330,7 @@ export default function PostDetailPage() {
 
           {/* コメント入力（画面最下部に固定） */}
           {currentUser && (
-            <div className="shrink-0 bg-white border-t border-[#eff3f4] px-4 pt-2 pb-4">
+            <div className="shrink-0 bg-white border-t border-[#eff3f4] px-4 pt-2 pb-[72px] md:pb-4">
               <form onSubmit={handleSubmitComment}>
                 <div className="flex justify-end mb-1.5">
                   <span className={`text-xs tabular-nums ${
