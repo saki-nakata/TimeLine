@@ -3,6 +3,11 @@ package com.timeline.controller;
 import com.timeline.dto.CommentResponse;
 import com.timeline.dto.CreateCommentRequest;
 import com.timeline.service.CommentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Tag(name = "コメント", description = "投稿へのコメント操作")
+@SecurityRequirement(name = "cookieAuth")
 @RestController
 @RequestMapping("/api/posts/{postId}/comments")
 public class CommentController {
@@ -27,12 +34,20 @@ public class CommentController {
         this.commentService = commentService;
     }
 
+    @Operation(summary = "コメント一覧取得")
+    @ApiResponse(responseCode = "200", description = "取得成功")
     @GetMapping
     public ResponseEntity<List<CommentResponse>> getComments(
             @PathVariable Long postId) {
         return ResponseEntity.ok(commentService.getComments(postId));
     }
 
+    @Operation(summary = "コメント作成")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "作成成功"),
+        @ApiResponse(responseCode = "400", description = "バリデーションエラー"),
+        @ApiResponse(responseCode = "401", description = "未認証")
+    })
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
             @PathVariable Long postId,
@@ -42,6 +57,12 @@ public class CommentController {
                 .body(commentService.createComment(postId, userId, req));
     }
 
+    @Operation(summary = "コメント削除")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "削除成功"),
+        @ApiResponse(responseCode = "401", description = "未認証"),
+        @ApiResponse(responseCode = "403", description = "他ユーザーのコメントは削除不可")
+    })
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,

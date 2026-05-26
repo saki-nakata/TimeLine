@@ -34,3 +34,12 @@ aws:
   s3:
     bucket-name: ${AWS_S3_BUCKET_NAME:saki-timeline-images}
     region: ${AWS_S3_REGION:ap-northeast-1}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  paths-to-match: /api/**

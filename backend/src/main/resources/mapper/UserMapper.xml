@@ -36,7 +36,6 @@
         <id     property="id"                     column="id"/>
         <result property="username"               column="username"/>
         <result property="displayName"            column="display_name"/>
-        <result property="email"                  column="email"/>
         <result property="avatarUrl"              column="avatar_url"/>
         <result property="bio"                    column="bio"/>
         <result property="followerCount"          column="follower_count"/>
@@ -68,7 +67,7 @@
     </select>
 
     <select id="findProfileById" resultMap="UserProfileResultMap">
-        SELECT u.id, u.username, u.display_name, u.email, u.avatar_url, u.bio,
+        SELECT u.id, u.username, u.display_name, u.avatar_url, u.bio,
                u.follower_count, u.following_count, u.created_at,
                EXISTS(
                    SELECT 1 FROM user_follows uf
@@ -80,7 +79,7 @@
     </select>
 
     <select id="searchUsers" resultMap="UserProfileResultMap">
-        SELECT u.id, u.username, u.display_name, u.email, u.avatar_url, u.bio,
+        SELECT u.id, u.username, u.display_name, u.avatar_url, u.bio,
                u.follower_count, u.following_count, u.created_at,
                EXISTS(
                    SELECT 1 FROM user_follows uf

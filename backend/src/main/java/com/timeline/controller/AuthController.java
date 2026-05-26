@@ -5,6 +5,11 @@ import com.timeline.dto.RegisterRequest;
 import com.timeline.dto.UserResponse;
 import com.timeline.model.User;
 import com.timeline.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "認証", description = "ユーザー登録・ログイン・セッション管理")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -29,6 +35,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @Operation(summary = "新規ユーザー登録")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "登録成功"),
+        @ApiResponse(responseCode = "400", description = "バリデーションエラー")
+    })
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(
             @Valid @RequestBody RegisterRequest req,
@@ -38,6 +49,11 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(user));
     }
 
+    @Operation(summary = "ログイン（Cookie 発行）")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "ログイン成功"),
+        @ApiResponse(responseCode = "401", description = "認証失敗")
+    })
     @PostMapping("/login")
     public ResponseEntity<UserResponse> login(
             @Valid @RequestBody LoginRequest req,
@@ -47,6 +63,8 @@ public class AuthController {
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    @Operation(summary = "ログアウト（Cookie 削除）")
+    @ApiResponse(responseCode = "204", description = "ログアウト成功")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         String rawRefreshToken = extractCookie(request, REFRESH_COOKIE_NAME);
@@ -56,6 +74,11 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "アクセストークン更新")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "更新成功"),
+        @ApiResponse(responseCode = "401", description = "リフレッシュトークン無効")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<UserResponse> refresh(HttpServletRequest request, HttpServletResponse response) {
         String rawRefreshToken = extractCookie(request, REFRESH_COOKIE_NAME);
@@ -67,6 +90,12 @@ public class AuthController {
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    @Operation(summary = "現在のログインユーザー取得")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "取得成功"),
+        @ApiResponse(responseCode = "401", description = "未認証")
+    })
+    @SecurityRequirement(name = "cookieAuth")
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal Long userId) {
         User user = authService.findById(userId);
