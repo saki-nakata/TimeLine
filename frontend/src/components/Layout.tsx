@@ -144,9 +144,11 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
           {/* 投稿ボタン：デスクトップはテキスト、タブレットはアイコン */}
           <button
             onClick={handlePostClick}
-            className="mt-2 hidden lg:block rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold py-3 text-[15px] transition"
+            className="mt-2 hidden lg:flex items-center justify-center gap-3 rounded-full bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white font-bold py-3 text-[15px] transition"
           >
+            <IconPencil />
             投稿する
+            <span className="w-3 shrink-0" aria-hidden="true" />
           </button>
           <button
             onClick={handlePostClick}
@@ -161,15 +163,7 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
             {currentUser && (
               <>
                 <button
-                  onClick={() => {
-                    // デスクトップ（lg 以上）はプロフィールへ遷移、タブレットはドロップダウン
-                    const isDesktop = window.innerWidth >= 1024;
-                    if (isDesktop) {
-                      navigate(`/profile/${currentUser.id}`);
-                    } else {
-                      setDropdownOpen(prev => !prev);
-                    }
-                  }}
+                  onClick={() => setDropdownOpen(prev => !prev)}
                   className={`flex items-center md:justify-center lg:justify-start gap-3 md:px-0 lg:px-3 py-3 rounded-full transition w-full text-left${
                     isOwnProfile ? ' bg-gray-200' : ' hover:bg-[#f7f9f9]'
                   }`}
@@ -191,9 +185,8 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
                   </div>
                 </button>
 
-                {/* タブレット用ドロップダウン */}
                 {dropdownOpen && (
-                  <div className="absolute bottom-14 left-0 bg-white rounded-2xl shadow-xl border border-[#eff3f4] w-48 py-2 z-50 lg:hidden">
+                  <div className="absolute bottom-14 left-0 bg-white rounded-2xl shadow-xl border border-[#eff3f4] w-48 py-2 z-50">
                     <button
                       onClick={() => { navigate(`/profile/${currentUser.id}`); setDropdownOpen(false); }}
                       className="w-full px-4 py-3 text-left text-[14px] text-[#0f1419] hover:bg-gray-50 transition-colors"
@@ -210,14 +203,6 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
                 )}
               </>
             )}
-
-            {/* ログアウト：デスクトップのみ */}
-            <button
-              onClick={handleLogout}
-              className="hidden lg:block w-full text-left px-3 py-3 rounded-full text-[15px] font-semibold text-[#536471] hover:bg-[#f7f9f9] transition"
-            >
-              ログアウト
-            </button>
           </div>
         </aside>
 
