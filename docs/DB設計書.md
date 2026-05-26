@@ -234,6 +234,34 @@ erDiagram
 
 ---
 
+### 3.6 refresh_tokens テーブル
+
+リフレッシュトークンを管理するテーブル。平文トークンは保存せず、SHA-256 ハッシュのみを保存する。
+
+| カラム名 | データ型 | NULL | デフォルト | 説明 |
+|---------|---------|------|-----------|------|
+| id | BIGSERIAL | NOT NULL | 自動採番 | 主キー |
+| user_id | BIGINT | NOT NULL | — | トークン所有者の users.id（外部キー） |
+| token_hash | VARCHAR(64) | NOT NULL | — | SHA-256 ハッシュ化済みトークン。一意 |
+| expires_at | TIMESTAMPTZ | NOT NULL | — | トークンの有効期限（発行から 7 日） |
+| created_at | TIMESTAMPTZ | NOT NULL | NOW() | 発行日時 |
+
+**制約:**
+
+| 制約名 | 種別 | 対象カラム | 内容 |
+|--------|------|-----------|------|
+| refresh_tokens_pkey | PRIMARY KEY | id | — |
+| refresh_tokens_token_hash_key | UNIQUE | token_hash | ハッシュの重複不可 |
+| refresh_tokens_user_id_fkey | FOREIGN KEY | user_id → users(id) | ON DELETE CASCADE |
+
+**インデックス:**
+
+| インデックス名 | 対象カラム | 目的 |
+|--------------|-----------|------|
+| idx_refresh_tokens_token_hash | token_hash | トークン検証時の高速ルックアップ |
+
+---
+
 ## 4. 関連ドキュメント
 
 | ドキュメント | ファイル |
