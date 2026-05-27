@@ -8,6 +8,10 @@
     <property name="severity" value="error"/>
     <property name="fileExtensions" value="java"/>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="${config_loc}/suppressions.xml"/>
+    </module>
+
     <!-- ファイル末尾の改行 -->
     <module name="NewlineAtEndOfFile"/>
 
