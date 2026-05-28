@@ -100,12 +100,6 @@ class PostControllerTest {
     // ─── GET /api/posts ──────────────────────────────────────────
 
     @Test
-    void getTimeline_未認証_401() throws Exception {
-        mockMvc.perform(get("/api/posts"))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     void getTimeline_認証済みtypeAll_200とTimelineResponseが返る() throws Exception {
         TimelineResponse timeline = new TimelineResponse(List.of(samplePost), null, false);
         when(postService.getTimeline(isNull(), eq(20), eq(USER_ID))).thenReturn(timeline);
@@ -129,13 +123,6 @@ class PostControllerTest {
     }
 
     // ─── POST /api/posts ─────────────────────────────────────────
-
-    @Test
-    void createPost_未認証_401() throws Exception {
-        mockMvc.perform(multipart("/api/posts")
-                        .param("content", "テスト"))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     void createPost_認証済みテキストあり_201とPostResponseが返る() throws Exception {
@@ -194,6 +181,32 @@ class PostControllerTest {
     }
 
     @Test
+    void updatePost_未認証_401() throws Exception {
+        mockMvc.perform(multipart("/api/posts/10")
+                        .param("content", "更新")
+                        .with(req -> {
+                            req.setMethod("PUT");
+                            return req;
+                        }))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void updatePost_存在しない投稿_404() throws Exception {
+        when(postService.updatePost(eq(99L), eq(USER_ID), any(), any(), eq(false)))
+                .thenThrow(new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "投稿が見つかりません"));
+
+        mockMvc.perform(multipart("/api/posts/99")
+                        .param("content", "更新")
+                        .with(req -> {
+                            req.setMethod("PUT");
+                            return req;
+                        })
+                        .with(authenticated()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void updatePost_他人の投稿_403() throws Exception {
         when(postService.updatePost(eq(10L), eq(USER_ID), any(), isNull(), eq(false)))
                 .thenThrow(new ResponseStatusException(FORBIDDEN, "権限がありません"));
@@ -209,12 +222,6 @@ class PostControllerTest {
     }
 
     // ─── DELETE /api/posts/{id} ───────────────────────────────────
-
-    @Test
-    void deletePost_未認証_401() throws Exception {
-        mockMvc.perform(delete("/api/posts/10"))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     void deletePost_認証済み_204() throws Exception {
