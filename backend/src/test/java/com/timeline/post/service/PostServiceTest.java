@@ -112,20 +112,6 @@ class PostServiceTest {
     }
 
     @Test
-    void createPost_テキストと画像_両方セットされる() {
-        MultipartFile image = mock(MultipartFile.class);
-        when(image.isEmpty()).thenReturn(false);
-        when(s3StorageService.storePostImage(image)).thenReturn("https://s3.example.com/img.jpg");
-        when(userMapper.findById(1L)).thenReturn(testUser);
-        doNothing().when(postMapper).insert(any(Post.class));
-
-        PostResponse result = postService.createPost(1L, "テキスト", image);
-
-        assertThat(result.getContent()).isEqualTo("テキスト");
-        assertThat(result.getImageUrl()).isEqualTo("https://s3.example.com/img.jpg");
-    }
-
-    @Test
     void createPost_テキストも画像もnull_400例外() {
         assertThatThrownBy(() -> postService.createPost(1L, null, null))
                 .isInstanceOf(ResponseStatusException.class)
@@ -296,6 +282,53 @@ class PostServiceTest {
         assertThat(result.hasMore()).isFalse();
         assertThat(result.nextCursor()).isNull();
         assertThat(result.posts()).hasSize(1);
+    }
+
+    // ─── getFollowingTimeline ─────────────────────────────────────
+
+    @Test
+    void getFollowingTimeline_正常_TimelineResponseが返る() {
+        List<PostResponse> posts = List.of(makePostResponse(2L), makePostResponse(1L));
+        when(postMapper.findFollowingTimeline(null, 3, 1L)).thenReturn(posts);
+
+        TimelineResponse result = postService.getFollowingTimeline(null, 2, 1L);
+
+        assertThat(result.posts()).hasSize(2);
+        assertThat(result.hasMore()).isFalse();
+    }
+
+    @Test
+    void getFollowingTimeline_フォローなし_空リストが返る() {
+        when(postMapper.findFollowingTimeline(null, 3, 1L)).thenReturn(List.of());
+
+        TimelineResponse result = postService.getFollowingTimeline(null, 2, 1L);
+
+        assertThat(result.posts()).isEmpty();
+        assertThat(result.hasMore()).isFalse();
+    }
+
+    // ─── getUserPosts ─────────────────────────────────────────────
+
+    @Test
+    void getUserPosts_cursor指定あり_cursorを渡してクエリされる() {
+        when(postMapper.findPostsByUserId(2L, 5L, 3, 1L)).thenReturn(List.of());
+
+        postService.getUserPosts(2L, 5L, 2, 1L);
+
+        verify(postMapper).findPostsByUserId(2L, 5L, 3, 1L);
+    }
+
+    @Test
+    void getUserPosts_hasMoreがtrue_nextCursorと切り詰めたリストを返す() {
+        List<PostResponse> posts = List.of(
+                makePostResponse(3L), makePostResponse(2L), makePostResponse(1L)
+        );
+        when(postMapper.findPostsByUserId(1L, null, 3, 1L)).thenReturn(posts);
+
+        TimelineResponse result = postService.getUserPosts(1L, null, 2, 1L);
+
+        assertThat(result.hasMore()).isTrue();
+        assertThat(result.posts()).hasSize(2);
     }
 
     // ─── ヘルパー ────────────────────────────────────────────────

@@ -14,6 +14,9 @@ pnpm lint
 
 # TypeScript コンパイルチェック
 pnpm exec tsc -b --noEmit
+
+# ユニットテスト実行
+pnpm test
 ```
 
 ### 2. バックエンド
@@ -25,6 +28,9 @@ cd backend
 
 # Checkstyle チェック（main + test）
 ./gradlew checkstyleMain checkstyleTest
+
+# ユニットテスト・統合テスト実行
+./gradlew test
 ```
 
 ### 3. 仕様書・要件定義書との差異確認
@@ -54,10 +60,20 @@ cd backend
 - 結果: PASS / FAIL
 - エラーがあれば内容を列挙
 
+### フロントエンド（テスト）
+- 結果: PASS / FAIL
+- 実行数: X 件 / 成功: X 件 / 失敗: X 件
+- 失敗があれば対象ファイル・テスト名とエラー内容を列挙
+
 ### バックエンド（Checkstyle）
 - 結果: PASS / FAIL
 - 違反数: X 件
 - 問題があれば内容を列挙
+
+### バックエンド（テスト）
+- 結果: PASS / FAIL
+- 実行数: X 件 / 成功: X 件 / 失敗: X 件
+- 失敗があれば対象クラス・メソッドとエラー内容を列挙
 
 ### ドキュメント（docs/）との差異
 - 差異なし / 差異あり
