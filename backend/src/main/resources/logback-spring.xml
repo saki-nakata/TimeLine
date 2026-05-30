@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- JSON appender（local 以外のプロファイル：prod / staging） -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <version>[ignore]</version>
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+            <!-- MDC フィールド（traceId / userId）を自動展開 -->
+            <includeMdc>true</includeMdc>
+            <!-- 本番ではコスト削減のためカラー情報を含めない -->
+            <includeCallerData>false</includeCallerData>
+            <!-- ロガー名を短縮して読みやすくする -->
+            <shortenedLoggerNameLength>36</shortenedLoggerNameLength>
+            <!-- 全ログ行に付与する静的フィールド -->
+            <customFields>{"app":"timeline","env":"${spring.profiles.active:-default}"}</customFields>
+            <!-- UTC タイムスタンプ（監視サービスへの連携を考慮） -->
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'</timestampPattern>
+            <timeZone>UTC</timeZone>
+        </encoder>
+    </appender>
+
+    <!-- テキスト appender（local 開発環境） -->
+    <appender name="PLAIN_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} traceId=%X{traceId} userId=%X{userId} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- local プロファイル: テキスト形式 + DEBUG レベル -->
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="PLAIN_CONSOLE"/>
+        </root>
+        <logger name="com.timeline" level="DEBUG"/>
+    </springProfile>
+
+    <!-- local 以外（prod / staging 等）: JSON 形式 + INFO レベル -->
+    <springProfile name="!local">
+        <root level="WARN">
+            <appender-ref ref="JSON_CONSOLE"/>
+        </root>
+        <logger name="com.timeline" level="INFO"/>
+        <logger name="org.mybatis" level="WARN"/>
+        <logger name="org.springframework.security" level="WARN"/>
+        <logger name="org.springframework.web" level="WARN"/>
+    </springProfile>
+
+</configuration>

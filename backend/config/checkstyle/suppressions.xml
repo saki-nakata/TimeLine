@@ -6,4 +6,6 @@
 <suppressions>
     <!-- テストメソッドは日本語＋アンダースコアの命名を許容する -->
     <suppress checks="MethodName" files=".*Test\.java"/>
+    <!-- SLF4J Logger フィールド（static final log）は ConstantName 対象外 -->
+    <suppress checks="ConstantName" message="Name 'log' must match pattern"/>
 </suppressions>

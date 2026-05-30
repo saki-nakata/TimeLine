@@ -30,6 +30,18 @@ logging:
   level:
     com.timeline: INFO
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  # Datadog 連携時は build.gradle に micrometer-registry-datadog を追加し、以下を有効化する
+  # metrics:
+  #   export:
+  #     datadog:
+  #       enabled: true
+  #       api-key: ${DATADOG_API_KEY}
+
 aws:
   s3:
     bucket-name: ${AWS_S3_BUCKET_NAME:saki-timeline-images}

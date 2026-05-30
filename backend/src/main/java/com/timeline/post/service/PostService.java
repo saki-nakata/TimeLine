@@ -7,6 +7,9 @@ import com.timeline.user.repository.UserMapper;
 import com.timeline.common.storage.S3StorageService;
 import com.timeline.model.Post;
 import com.timeline.model.User;
+import net.logstash.logback.argument.StructuredArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ import java.util.List;
 
 @Service
 public class PostService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PostService.class);
 
     private final PostMapper postMapper;
     private final UserMapper userMapper;
@@ -73,6 +78,10 @@ public class PostService {
         User author = userMapper.findById(userId);
         PostResponse response = PostResponse.from(post, author);
         messagingTemplate.convertAndSend("/topic/posts", response);
+        LOG.info("Post created",
+                StructuredArguments.kv("event", "post_created"),
+                StructuredArguments.kv("postId", post.getId()),
+                StructuredArguments.kv("hasImage", hasImage));
         return response;
     }
 
@@ -106,6 +115,9 @@ public class PostService {
         post.setContent(hasContent ? content : null);
         post.setUpdatedAt(OffsetDateTime.now());
         postMapper.update(post);
+        LOG.info("Post updated",
+                StructuredArguments.kv("event", "post_updated"),
+                StructuredArguments.kv("postId", postId));
         User author = userMapper.findById(requesterId);
         return PostResponse.from(post, author);
     }
@@ -144,5 +156,8 @@ public class PostService {
             s3StorageService.deleteFile(post.getImageUrl());
         }
         postMapper.delete(postId);
+        LOG.info("Post deleted",
+                StructuredArguments.kv("event", "post_deleted"),
+                StructuredArguments.kv("postId", postId));
     }
 }

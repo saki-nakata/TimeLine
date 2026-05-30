@@ -1,5 +1,8 @@
 package com.timeline.common.storage;
 
+import net.logstash.logback.argument.StructuredArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,8 @@ import java.util.UUID;
 
 @Service
 public class S3StorageService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(S3StorageService.class);
 
     private static final Set<String> ALLOWED_TYPES = Set.of(
             "image/jpeg", "image/png", "image/gif", "image/webp"
@@ -53,7 +58,16 @@ public class S3StorageService {
                     .contentLength(file.getSize())
                     .build();
             s3Client.putObject(request, RequestBody.fromBytes(file.getBytes()));
+            LOG.info("S3 upload succeeded",
+                    StructuredArguments.kv("event", "s3_upload"),
+                    StructuredArguments.kv("bucket", bucketName),
+                    StructuredArguments.kv("key", key),
+                    StructuredArguments.kv("sizeBytes", file.getSize()));
         } catch (IOException e) {
+            LOG.error("S3 upload failed",
+                    StructuredArguments.kv("event", "s3_upload_failed"),
+                    StructuredArguments.kv("folder", folder),
+                    e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "画像のアップロードに失敗しました");
         }
         return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + key;
@@ -71,8 +85,15 @@ public class S3StorageService {
         String key = url.substring(idx + prefix.length());
         try {
             s3Client.deleteObject(b -> b.bucket(bucketName).key(key));
+            LOG.info("S3 delete succeeded",
+                    StructuredArguments.kv("event", "s3_delete"),
+                    StructuredArguments.kv("bucket", bucketName),
+                    StructuredArguments.kv("key", key));
         } catch (Exception e) {
-            // S3削除失敗はログのみ、DB削除は続行
+            LOG.warn("S3 delete failed",
+                    StructuredArguments.kv("event", "s3_delete_failed"),
+                    StructuredArguments.kv("key", key),
+                    e);
         }
     }
 
