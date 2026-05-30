@@ -7,6 +7,9 @@ import com.timeline.user.repository.UserMapper;
 import com.timeline.model.RefreshToken;
 import com.timeline.model.User;
 import com.timeline.util.JwtUtil;
+import net.logstash.logback.argument.StructuredArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +25,8 @@ import java.util.Base64;
 
 @Service
 public class AuthService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AuthService.class);
 
     private final UserMapper userMapper;
     private final RefreshTokenMapper refreshTokenMapper;
@@ -46,9 +51,15 @@ public class AuthService {
 
     public User register(RegisterRequest req) {
         if (userMapper.findByEmail(req.getEmail()) != null) {
+            LOG.info("Registration conflict",
+                    StructuredArguments.kv("event", "register_conflict"),
+                    StructuredArguments.kv("field", "email"));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "このメールアドレスはすでに使用されています");
         }
         if (userMapper.findByUsername(req.getUsername()) != null) {
+            LOG.info("Registration conflict",
+                    StructuredArguments.kv("event", "register_conflict"),
+                    StructuredArguments.kv("field", "username"));
             throw new ResponseStatusException(HttpStatus.CONFLICT, "このユーザー名はすでに使用されています");
         }
 
@@ -57,14 +68,21 @@ public class AuthService {
         user.setEmail(req.getEmail());
         user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         userMapper.insert(user);
+        LOG.info("User registered",
+                StructuredArguments.kv("event", "user_registered"),
+                StructuredArguments.kv("userId", user.getId()));
         return user;
     }
 
     public User login(LoginRequest req) {
         User user = userMapper.findByEmail(req.getEmail());
         if (user == null || !passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
+            LOG.warn("Login failed", StructuredArguments.kv("event", "login_failed"));
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "メールアドレスまたはパスワードが正しくありません");
         }
+        LOG.info("Login success",
+                StructuredArguments.kv("event", "login_success"),
+                StructuredArguments.kv("userId", user.getId()));
         return user;
     }
 
@@ -91,17 +109,23 @@ public class AuthService {
         RefreshToken stored = refreshTokenMapper.findByTokenHash(hash);
 
         if (stored == null || stored.getExpiresAt().isBefore(OffsetDateTime.now())) {
+            LOG.warn("Refresh token invalid", StructuredArguments.kv("event", "refresh_token_invalid"));
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "リフレッシュトークンが無効です");
         }
 
         refreshTokenMapper.deleteByTokenHash(hash);
 
-        return findById(stored.getUserId());
+        User user = findById(stored.getUserId());
+        LOG.info("Token refreshed",
+                StructuredArguments.kv("event", "token_refreshed"),
+                StructuredArguments.kv("userId", user.getId()));
+        return user;
     }
 
     public void logout(String rawRefreshToken) {
         if (rawRefreshToken != null && !rawRefreshToken.isBlank()) {
             refreshTokenMapper.deleteByTokenHash(sha256(rawRefreshToken));
+            LOG.info("Logout", StructuredArguments.kv("event", "logout"));
         }
     }
 

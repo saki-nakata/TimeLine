@@ -21,3 +21,9 @@ aws:
   s3:
     bucket-name: test-bucket
     region: ap-northeast-1
+
+management:
+  metrics:
+    export:
+      datadog:
+        enabled: false

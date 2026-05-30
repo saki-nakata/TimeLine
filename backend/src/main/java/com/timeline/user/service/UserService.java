@@ -4,6 +4,9 @@ import com.timeline.user.dto.UpdateProfileRequest;
 import com.timeline.user.dto.UserProfileResponse;
 import com.timeline.user.repository.UserMapper;
 import com.timeline.model.User;
+import net.logstash.logback.argument.StructuredArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,6 +16,8 @@ import java.util.List;
 
 @Service
 public class UserService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 
     private final UserMapper userMapper;
 
@@ -65,6 +70,9 @@ public class UserService {
         user.setAvatarUrl(avatarUrl);
         user.setUpdatedAt(OffsetDateTime.now());
         userMapper.update(user);
+        LOG.info("Avatar updated",
+                StructuredArguments.kv("event", "avatar_updated"),
+                StructuredArguments.kv("userId", userId));
         return userMapper.findProfileById(userId, userId);
     }
 }
