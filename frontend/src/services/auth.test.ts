@@ -120,3 +120,50 @@ describe('401自動リフレッシュインターセプター', () => {
     await expect(api.post('/auth/refresh')).rejects.toMatchObject({ response: { status: 401 } })
   })
 })
+
+// ─── 500系エラーインターセプター ──────────────────────────────────────────────
+
+describe('500系エラーインターセプター', () => {
+  it('500エラー時にapi-errorイベントが発火される', async () => {
+    server.use(http.get('/api/posts', () => new HttpResponse(null, { status: 500 })))
+
+    const events: CustomEvent[] = []
+    const handler = (e: Event) => events.push(e as CustomEvent)
+    window.addEventListener('api-error', handler)
+
+    await expect(api.get('/posts')).rejects.toBeDefined()
+
+    expect(events).toHaveLength(1)
+    expect(events[0].detail.message).toContain('サーバーエラー')
+
+    window.removeEventListener('api-error', handler)
+  })
+
+  it('503エラー時もapi-errorイベントが発火される', async () => {
+    server.use(http.get('/api/posts', () => new HttpResponse(null, { status: 503 })))
+
+    const events: CustomEvent[] = []
+    const handler = (e: Event) => events.push(e as CustomEvent)
+    window.addEventListener('api-error', handler)
+
+    await expect(api.get('/posts')).rejects.toBeDefined()
+
+    expect(events).toHaveLength(1)
+
+    window.removeEventListener('api-error', handler)
+  })
+
+  it('400エラー時はapi-errorイベントが発火されない', async () => {
+    server.use(http.get('/api/posts', () => new HttpResponse(null, { status: 400 })))
+
+    const events: CustomEvent[] = []
+    const handler = (e: Event) => events.push(e as CustomEvent)
+    window.addEventListener('api-error', handler)
+
+    await expect(api.get('/posts')).rejects.toBeDefined()
+
+    expect(events).toHaveLength(0)
+
+    window.removeEventListener('api-error', handler)
+  })
+})
