@@ -27,6 +27,11 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
     }
+    if (error.response?.status >= 500) {
+      window.dispatchEvent(
+        new CustomEvent('api-error', { detail: { message: 'サーバーエラーが発生しました。しばらく経ってから再試行してください' } }),
+      );
+    }
     return Promise.reject(error);
   },
 );
