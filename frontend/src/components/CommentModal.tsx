@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { postService } from '../services/post';
+import { useToast } from '../context/ToastContext';
 import type { PostResponse } from '../types/post';
 import type { UserResponse } from '../types/user';
 import Avatar from './Avatar';
@@ -52,9 +54,9 @@ export default function CommentModal({
   onClose,
   onCommentCreated,
 }: CommentModalProps) {
+  const { showToast } = useToast();
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     if (!open) return;
@@ -76,15 +78,25 @@ export default function CommentModal({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!canSubmit) return;
+
+    const trimmed = content.trim();
+    const originalCount = post.commentCount;
+
+    // 楽観的更新：即時カウント更新＆クローズ
+    onCommentCreated(post.id, originalCount + 1);
+    onClose();
+
     setSubmitting(true);
-    setSubmitError('');
     try {
-      await postService.createComment(post.id, content.trim());
-      setContent('');
-      onCommentCreated(post.id, post.commentCount + 1);
-      onClose();
-    } catch {
-      setSubmitError('コメントの投稿に失敗しました');
+      await postService.createComment(post.id, trimmed);
+    } catch (err) {
+      // エラー時リバート
+      onCommentCreated(post.id, originalCount);
+      // 500系はグローバルインターセプターがトーストを表示済みのため除外
+      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+      if (!status || status < 500) {
+        showToast('コメントの投稿に失敗しました', 'error');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -160,9 +172,7 @@ export default function CommentModal({
                       autoFocus
                     />
                   </div>
-                  {submitError && (
-                    <p className="text-[#f4212e] text-xs mt-1">{submitError}</p>
-                  )}
+
                 </div>
               </div>
 

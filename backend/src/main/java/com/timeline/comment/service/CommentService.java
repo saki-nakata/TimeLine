@@ -6,6 +6,9 @@ import com.timeline.comment.repository.CommentMapper;
 import com.timeline.post.repository.PostMapper;
 import com.timeline.user.repository.UserMapper;
 import com.timeline.model.Comment;
+import net.logstash.logback.argument.StructuredArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +18,8 @@ import java.util.List;
 
 @Service
 public class CommentService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommentService.class);
 
     private final CommentMapper commentMapper;
     private final PostMapper postMapper;
@@ -46,6 +51,10 @@ public class CommentService {
         comment.setUpdatedAt(now);
         commentMapper.insert(comment);
         postMapper.incrementCommentCount(postId);
+        LOG.info("Comment created",
+                StructuredArguments.kv("event", "comment_created"),
+                StructuredArguments.kv("postId", postId),
+                StructuredArguments.kv("userId", userId));
 
         Comment saved = commentMapper.findById(comment.getId());
         CommentResponse res = new CommentResponse();
@@ -76,5 +85,10 @@ public class CommentService {
         }
         commentMapper.delete(commentId);
         postMapper.decrementCommentCount(postId);
+        LOG.info("Comment deleted",
+                StructuredArguments.kv("event", "comment_deleted"),
+                StructuredArguments.kv("postId", postId),
+                StructuredArguments.kv("commentId", commentId),
+                StructuredArguments.kv("userId", requesterId));
     }
 }
