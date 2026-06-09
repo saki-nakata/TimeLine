@@ -296,6 +296,7 @@ export default function ProfilePage() {
               <FollowButton
                 userId={profile.id}
                 isFollowing={profile.followedByCurrentUser}
+                followerCount={profile.followerCount}
                 onFollowChange={handleFollowChange}
               />
             )}

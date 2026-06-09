@@ -82,6 +82,7 @@ export default function FollowingPage() {
                         <FollowButton
                           userId={user.id}
                           isFollowing={user.followedByCurrentUser}
+                          followerCount={user.followerCount}
                           onFollowChange={(isFollowing, followerCount) =>
                             handleFollowChange(user.id, isFollowing, followerCount)
                           }

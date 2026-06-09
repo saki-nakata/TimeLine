@@ -4,24 +4,31 @@ import { userService } from '../services/user';
 interface FollowButtonProps {
   userId: number;
   isFollowing: boolean;
+  followerCount: number;
   onFollowChange: (isFollowing: boolean, followerCount: number) => void;
 }
 
-export default function FollowButton({ userId, isFollowing, onFollowChange }: FollowButtonProps) {
+export default function FollowButton({ userId, isFollowing, followerCount, onFollowChange }: FollowButtonProps) {
   const [loading, setLoading] = useState(false);
   const [hovered, setHovered] = useState(false);
 
   const handleClick = async () => {
     if (loading) return;
+    const wasFollowing = isFollowing;
+
+    // 楽観的更新
+    onFollowChange(!wasFollowing, wasFollowing ? followerCount - 1 : followerCount + 1);
+
     setLoading(true);
     try {
-      if (isFollowing) {
-        const res = await userService.unfollowUser(userId);
-        onFollowChange(false, res.data.followerCount);
-      } else {
-        const res = await userService.followUser(userId);
-        onFollowChange(true, res.data.followerCount);
-      }
+      const res = wasFollowing
+        ? await userService.unfollowUser(userId)
+        : await userService.followUser(userId);
+      // サーバー確定値で上書き
+      onFollowChange(res.data.following, res.data.followerCount);
+    } catch {
+      // エラー時リバート
+      onFollowChange(wasFollowing, followerCount);
     } finally {
       setLoading(false);
     }
