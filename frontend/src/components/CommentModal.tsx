@@ -168,6 +168,7 @@ export default function CommentModal({
                       onChange={(e) => setContent(e.target.value)}
                       rows={4}
                       placeholder="返信をポスト"
+                      data-testid="comment-input"
                       className="w-full resize-none text-[16px] text-[#0f1419] outline-none placeholder-[#536471] bg-transparent leading-relaxed"
                       autoFocus
                     />
@@ -203,6 +204,7 @@ export default function CommentModal({
                   <button
                     type="submit"
                     disabled={!canSubmit}
+                    data-testid="comment-submit"
                     className="rounded-full bg-[#1d9bf0] px-5 py-2 text-[15px] font-bold text-white
                       disabled:opacity-40 disabled:cursor-not-allowed
                       hover:bg-[#1a8cd8] active:bg-[#1877b5] transition-colors"

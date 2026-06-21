@@ -77,6 +77,7 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => { if (results.length > 0) setDropdownOpen(true); }}
             placeholder="ユーザーを検索..."
+            data-testid="search-input"
             className="flex-1 bg-transparent text-sm text-[#0f1419] placeholder-[#536471] outline-none"
           />
           {query && (
@@ -107,13 +108,14 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             {loading ? (
               <p className="text-center text-sm text-[#536471] py-4">検索中...</p>
             ) : results.length === 0 ? (
-              <p className="text-center text-sm text-[#536471] py-4">見つかりませんでした</p>
+              <p data-testid="search-no-results" className="text-center text-sm text-[#536471] py-4">見つかりませんでした</p>
             ) : (
               results.map(user => {
                 const displayName = user.displayName ?? user.username;
                 return (
                   <div
                     key={user.id}
+                    data-testid="search-result-item"
                     className="flex items-center gap-3 px-4 py-3 hover:bg-[#f7f9f9] transition-colors cursor-pointer border-b border-[#eff3f4] last:border-b-0"
                     onClick={() => handleSelect(user.id)}
                   >

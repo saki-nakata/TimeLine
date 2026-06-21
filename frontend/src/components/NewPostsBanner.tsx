@@ -9,6 +9,7 @@ export default function NewPostsBanner({ count, onClick }: NewPostsBannerProps) 
   return (
     <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
       <button
+        data-testid="new-posts-banner"
         onClick={onClick}
         className="pointer-events-auto flex items-center gap-2 bg-[#1d9bf0] hover:bg-[#1a8cd8] text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-lg transition-colors"
       >

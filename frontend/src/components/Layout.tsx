@@ -112,6 +112,7 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
           {/* ナビゲーション */}
           <nav className="flex flex-col gap-1">
             <button
+              data-testid="nav-home"
               onClick={() => navigate('/home')}
               className={`flex items-center md:justify-center lg:justify-start gap-4 md:px-0 lg:px-3 py-3 rounded-full font-bold text-[17px] text-[#0f1419] transition-colors${
                 isHome ? ' bg-gray-200' : ' hover:bg-gray-100'
@@ -122,6 +123,7 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
               <span className="hidden lg:inline">ホーム</span>
             </button>
             <button
+              data-testid="nav-following"
               onClick={() => navigate('/following')}
               className={`flex items-center md:justify-center lg:justify-start gap-4 md:px-0 lg:px-3 py-3 rounded-full font-bold text-[17px] text-[#0f1419] transition-colors${
                 isFollowing ? ' bg-gray-200' : ' hover:bg-gray-100'
@@ -132,6 +134,7 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
               <span className="hidden lg:inline">フォロー中</span>
             </button>
             <button
+              data-testid="nav-search"
               onClick={() => setSearchOpen(prev => !prev)}
               className="flex items-center md:justify-center lg:justify-start gap-4 md:px-0 lg:px-3 py-3 rounded-full font-bold text-[17px] text-[#0f1419] transition-colors hover:bg-gray-100"
               aria-label="検索"
@@ -163,6 +166,7 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
             {currentUser && (
               <>
                 <button
+                  data-testid="user-menu-toggle"
                   onClick={() => setDropdownOpen(prev => !prev)}
                   className={`flex items-center md:justify-center lg:justify-start gap-3 md:px-0 lg:px-3 py-3 rounded-full transition w-full text-left${
                     isOwnProfile ? ' bg-gray-200' : ' hover:bg-[#f7f9f9]'
@@ -194,6 +198,7 @@ export default function Layout({ children, onPostClick, onPostCreated, fullHeigh
                       プロフィール
                     </button>
                     <button
+                      data-testid="logout-button"
                       onClick={() => { handleLogout(); setDropdownOpen(false); }}
                       className="w-full px-4 py-3 text-left text-[14px] text-[#f4212e] hover:bg-gray-50 transition-colors"
                     >

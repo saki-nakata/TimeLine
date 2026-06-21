@@ -215,6 +215,7 @@ export default function PostDetailPage() {
 
                   <div className="flex items-center gap-5">
                     <button
+                      data-testid="detail-like-button"
                       onClick={handleLikeToggle}
                       className={`flex items-center gap-1.5 text-[15px] px-2.5 py-1.5 rounded-full transition-colors ${
                         post.likedByCurrentUser
@@ -223,7 +224,7 @@ export default function PostDetailPage() {
                       }`}
                     >
                       <IconHeart filled={post.likedByCurrentUser} />
-                      <span>{post.likeCount}</span>
+                      <span data-testid="detail-like-count">{post.likeCount}</span>
                       <span className="text-[14px]">いいね</span>
                     </button>
                     <button
@@ -257,6 +258,7 @@ export default function PostDetailPage() {
                         return (
                           <div
                             key={c.id}
+                            data-testid="comment-item"
                             className={`flex gap-3 px-4 py-3 border-b border-[#eff3f4] transition-colors ${isConfirming ? 'bg-red-50' : ''}`}
                           >
                             <div className="flex-shrink-0">
@@ -275,6 +277,7 @@ export default function PostDetailPage() {
                                 </div>
                                 {isOwn && (
                                   <button
+                                    data-testid="comment-delete"
                                     onClick={() => setConfirmDeleteCommentId(isConfirming ? null : c.id)}
                                     className={`flex-shrink-0 p-1.5 rounded-full transition-colors ${
                                       isConfirming
@@ -354,12 +357,14 @@ export default function PostDetailPage() {
                       value={content}
                       onChange={e => setContent(e.target.value)}
                       placeholder="コメントを追加..."
+                      data-testid="detail-comment-input"
                       className="w-full text-[15px] text-[#0f1419] outline-none placeholder-[#536471] bg-transparent"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={!canSubmit}
+                    data-testid="detail-comment-submit"
                     className="flex-shrink-0 rounded-full bg-[#1d9bf0] px-4 py-1.5 text-[14px] font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#1a8cd8] active:bg-[#1877b5] transition-colors"
                   >
                     {submitting ? '送信中...' : '投稿'}

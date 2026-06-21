@@ -165,6 +165,7 @@ export default function ProfileEditModal({ profile, onClose, onUpdated }: Profil
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">表示名</label>
             <input
+              data-testid="profile-display-name-input"
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
