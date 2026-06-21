@@ -225,6 +225,9 @@ done
 echo "=== 完了 ==="
 echo "レポートは ${RESULTS_DIR} に保存されました"
 echo ""
+echo "=== 集約レポートHTML生成 ==="
+bash "$0" index
+echo ""
 echo "=== シードデータのクリーンアップ ==="
 docker exec timeline-db psql -U postgres -d timeline -c \
   "DELETE FROM users WHERE username LIKE 'perf_user_%';"
