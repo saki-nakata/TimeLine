@@ -8,14 +8,17 @@ import { postCreateScenario } from '../../scenarios/postCreateScenario.ts';
 import { likeScenario } from '../../scenarios/likeScenario.ts';
 import { commentScenario } from '../../scenarios/commentScenario.ts';
 import { profileScenario } from '../../scenarios/profileScenario.ts';
+import { followScenario } from '../../scenarios/followScenario.ts';
 import { userSearchScenario } from '../../scenarios/userSearchScenario.ts';
 import { createPost, deletePost } from '../../requests/postRequests.ts';
+import { searchUsers } from '../../requests/userRequests.ts';
 import { TEST_USER, BASE_URL } from '../../config/config.ts';
 import type { RequestHeaders } from '../../helpers/auth.ts';
 
 interface SetupData {
   postId: number | null;
   userId: number;
+  targetUserId: number;
   headers: RequestHeaders;
 }
 
@@ -37,9 +40,12 @@ export const options: Options = {
 export function setup(): SetupData {
   const headers = login(TEST_USER.email, TEST_USER.password);
   const postId = createPost(headers, 'スモークテスト用シード投稿');
-  const res = http.get(`${BASE_URL}/api/auth/me`, { headers });
-  const userId = (res.json('id') as number) ?? 0;
-  return { postId, userId, headers };
+  const meRes = http.get(`${BASE_URL}/api/auth/me`, { headers });
+  const userId = (meRes.json('id') as number) ?? 0;
+  const searchRes = searchUsers(headers, 'perf_user');
+  const users = searchRes.json('users') as Array<{ id: number }> | null;
+  const targetUserId = users?.[0]?.id ?? 0;
+  return { postId, userId, targetUserId, headers };
 }
 
 export default function (data: SetupData): void {
@@ -49,6 +55,7 @@ export default function (data: SetupData): void {
   if (data.postId !== null) likeScenario(data.postId);
   if (data.postId !== null) commentScenario(data.postId);
   profileScenario(data.userId);
+  if (data.targetUserId !== 0) followScenario(data.targetUserId);
   userSearchScenario();
 }
 
