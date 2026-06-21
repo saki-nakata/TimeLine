@@ -53,3 +53,9 @@ logs/
 # アップロードファイル
 # ===========================
 backend/uploads/
+
+# ===========================
+# k6 パフォーマンステスト レポート
+# ===========================
+performance/k6/results/*.html
+performance/k6/results/*.json

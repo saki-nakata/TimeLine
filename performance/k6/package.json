@@ -1,0 +1,7 @@
+{
+  "name": "k6-performance-tests",
+  "private": true,
+  "devDependencies": {
+    "@types/k6": "^0.56.0"
+  }
+}
