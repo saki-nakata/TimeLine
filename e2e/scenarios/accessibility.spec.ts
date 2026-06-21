@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { STORAGE_STATE_PATH, API_BASE_URL } from '../fixtures/constants';
 
@@ -9,7 +9,7 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa'];
 // その他の WCAG AA 違反がないことを検証する。
 const KNOWN_EXCLUSIONS = ['color-contrast'];
 
-function axeBuilder(page: Parameters<typeof test>[1] extends (args: { page: infer P }) => unknown ? P : never) {
+function axeBuilder(page: Page) {
   return new AxeBuilder({ page })
     .withTags(WCAG_TAGS)
     .disableRules(KNOWN_EXCLUSIONS);
