@@ -22,24 +22,6 @@ test.describe('タイムライン', () => {
     await expect(page.locator('[data-testid="tab-all"]')).toHaveClass(/border-\[#1d9bf0\]/);
   });
 
-  test('フォロー中タブにはフォローしているユーザーの投稿のみ表示される', async ({ page }) => {
-    await page.goto('/home');
-    await page.locator('[data-testid="tab-following"]').click();
-    // ページが安定するまで待機（投稿がない場合も考慮）
-    await page.waitForLoadState('networkidle');
-    // 表示される投稿は currentUser がフォローしているユーザーのものであること
-    // （0件の場合はメッセージが表示されることを確認）
-    const postCards = page.locator('[data-testid="post-card"]');
-    const count = await postCards.count();
-    if (count > 0) {
-      // 投稿が存在する場合は少なくとも1件表示されていること
-      expect(count).toBeGreaterThan(0);
-    } else {
-      // 0件の場合は「投稿がありません」系のメッセージが表示される
-      await expect(page.locator('text=まだ投稿はありません').or(page.locator('text=投稿がありません'))).toBeVisible();
-    }
-  });
-
   test('スクロールによる次ページ読み込み（カーソルページネーション）', async ({ page }) => {
     await page.goto('/home');
     // 初期ロード

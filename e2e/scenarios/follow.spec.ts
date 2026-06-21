@@ -52,27 +52,29 @@ test.describe('フォロー', () => {
     }
   });
 
-  test('フォロー → フォロー解除 → フォロー数カウントが増加・減少する', async ({ page }) => {
+  test('フォロー解除 → フォロー中一覧から消える', async ({ page }) => {
+    test.setTimeout(60000);
     const bob = await navigateToBobProfile(page);
+    await page.waitForLoadState('networkidle');
 
+    // まずフォロー済み状態にする
     const followBtn = page.locator('[data-testid="follow-button"]');
-
-    // 未フォロー状態にする
+    await followBtn.waitFor({ timeout: 10000 });
     const btnText = await followBtn.textContent();
-    if (btnText?.includes('フォロー中')) {
+    if (!btnText?.includes('フォロー中')) {
       await followBtn.click();
-      await page.waitForTimeout(500);
-      await page.reload();
+      await expect(followBtn).toHaveText(/フォロー中/, { timeout: 5000 });
     }
 
-    // フォロワー数要素（プロフィールページ上の数値）
-    // フォロー
-    await page.locator('[data-testid="follow-button"]').click();
-    await expect(page.locator('[data-testid="follow-button"]')).toHaveText(/フォロー中/, { timeout: 5000 });
-
     // フォロー解除
-    await page.locator('[data-testid="follow-button"]').hover();
-    await page.locator('[data-testid="follow-button"]').click();
-    await expect(page.locator('[data-testid="follow-button"]')).toHaveText(/^フォロー$/, { timeout: 5000 });
+    await followBtn.click();
+    await expect(followBtn).toHaveText(/^フォロー$/, { timeout: 5000 });
+
+    // フォロー中タブに bob の投稿が表示されないことを確認
+    await page.goto('/home');
+    await page.locator('[data-testid="tab-following"]').click();
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator(`text=${TEST_USERS.bob.username}`)).not.toBeVisible({ timeout: 5000 });
   });
+
 });

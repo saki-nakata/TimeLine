@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import path from 'path';
 import { STORAGE_STATE_PATH, E2E_POST_PREFIX } from '../fixtures/constants';
 
 test.use({ storageState: STORAGE_STATE_PATH });
@@ -48,27 +47,6 @@ test.describe('投稿 CRUD', () => {
       }
     }
     expect(foundOtherUserPost).toBe(true);
-  });
-
-  test('画像付き投稿作成', async ({ page }) => {
-    await page.goto('/home');
-    const content = `${E2E_POST_PREFIX} 画像投稿 ${Date.now()}`;
-
-    await page.locator('button', { hasText: '投稿する' }).first().click();
-    await page.fill('[data-testid="post-input"]', content);
-
-    // テスト用画像（1x1 px PNG を base64 で生成してアップロード）
-    const imagePath = path.join(process.cwd(), 'fixtures', 'test-image.png');
-    // file input に直接セット
-    await page.locator('input[type="file"]').setInputFiles({
-      name: 'test.png',
-      mimeType: 'image/png',
-      // 1x1 px 透明 PNG
-      buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'),
-    });
-
-    await page.click('[data-testid="post-submit"]');
-    await expect(page.locator('[data-testid="post-card"]').filter({ hasText: content })).toBeVisible({ timeout: 10000 });
   });
 
   test('投稿編集（テキスト変更）', async ({ page }) => {

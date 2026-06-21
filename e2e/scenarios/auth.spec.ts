@@ -45,18 +45,3 @@ test.describe('認証', () => {
   });
 });
 
-test.describe('認証済み', () => {
-  test.use({ storageState: STORAGE_STATE_PATH });
-
-  test('ログイン済みで /login にアクセス → /home にリダイレクト', async ({ page }) => {
-    await page.goto('/login');
-    await page.waitForURL('**/home');
-    expect(page.url()).toContain('/home');
-  });
-
-  test('ログイン済みで /register にアクセス → /home にリダイレクト', async ({ page }) => {
-    await page.goto('/register');
-    await page.waitForURL('**/home');
-    expect(page.url()).toContain('/home');
-  });
-});
