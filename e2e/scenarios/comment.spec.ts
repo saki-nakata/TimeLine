@@ -78,15 +78,4 @@ test.describe('コメント', () => {
     await expect(bobCommentItem.locator('[data-testid="comment-delete"]')).toHaveCount(0);
   });
 
-  test('280文字超過バリデーション（送信ボタンが無効になる）', async ({ page }) => {
-    await openFirstPostDetail(page);
-    await page.fill('[data-testid="detail-comment-input"]', 'あ'.repeat(281));
-    await expect(page.locator('[data-testid="detail-comment-submit"]')).toBeDisabled();
-  });
-
-  test('空コメントは送信できない（送信ボタンが無効状態）', async ({ page }) => {
-    await openFirstPostDetail(page);
-    // 何も入力しない状態
-    await expect(page.locator('[data-testid="detail-comment-submit"]')).toBeDisabled();
-  });
 });

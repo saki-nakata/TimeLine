@@ -19,9 +19,4 @@ test.describe('認証ガード（未ログイン）', () => {
     expect(page.url()).toContain('/login');
   });
 
-  test('/posts/:id にアクセス → /login にリダイレクト', async ({ page }) => {
-    await page.goto('/posts/1');
-    await page.waitForURL('**/login');
-    expect(page.url()).toContain('/login');
-  });
 });

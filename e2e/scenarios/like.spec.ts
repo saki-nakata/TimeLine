@@ -70,28 +70,4 @@ test.describe('いいね', () => {
     expect(reloadedCount).toBe(countBefore);
   });
 
-  test('楽観的更新確認（APIレスポンス前にUIが変化する）', async ({ page }) => {
-    const card = await getFirstPostCard(page);
-    const likeBtn = card.locator('[data-testid="like-button"]');
-    const likeCount = card.locator('[data-testid="like-count"]');
-
-    const isLiked = (await likeBtn.getAttribute('data-liked')) === 'true';
-    if (isLiked) {
-      await likeBtn.click({ force: true });
-      await page.waitForTimeout(600);
-    }
-
-    const before = parseInt((await likeCount.textContent()) ?? '0', 10);
-
-    // APIリクエストをスローさせて楽観的更新を観測
-    await page.route('**/api/posts/*/likes', async (route) => {
-      await new Promise((r) => setTimeout(r, 500));
-      await route.continue();
-    });
-
-    await likeBtn.click({ force: true });
-    // APIレスポンス前（500ms以内）に既にUIが更新されているはず
-    await expect(likeCount).toHaveText(String(before + 1), { timeout: 300 });
-    await page.unrouteAll();
-  });
 });

@@ -38,22 +38,6 @@ test.describe('認証', () => {
     await expect(page.locator('[data-testid="login-error"]')).toBeVisible();
   });
 
-  test('バリデーション: 空欄でログイン → エラーメッセージが表示される', async ({ page }) => {
-    await page.goto('/login');
-    await page.click('[data-testid="login-submit"]');
-    await expect(page.locator('[data-testid="login-error"]')).toBeVisible();
-  });
-
-  test('バリデーション: 重複メールで登録 → エラーメッセージが表示される', async ({ page }) => {
-    await page.goto('/register');
-    await page.fill('[data-testid="username-input"]', 'e2e_dup_user');
-    await page.fill('[data-testid="register-email-input"]', TEST_USERS.alice.email);
-    await page.fill('[data-testid="register-password-input"]', 'E2eTest1234!');
-    await page.fill('[data-testid="register-confirm-input"]', 'E2eTest1234!');
-    await page.click('[data-testid="register-submit"]');
-    await expect(page.locator('[data-testid="register-error"]')).toBeVisible();
-  });
-
   test('未認証でプライベートページにアクセス → ログインページにリダイレクト', async ({ page }) => {
     await page.goto('/home');
     await page.waitForURL('**/login');

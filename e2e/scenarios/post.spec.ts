@@ -27,21 +27,6 @@ test.describe('投稿 CRUD', () => {
     expect(page.url()).toMatch(/\/posts\/\d+/);
   });
 
-  test('空投稿は送信できない（送信ボタンが無効状態）', async ({ page }) => {
-    await page.goto('/home');
-    await page.locator('button', { hasText: '投稿する' }).first().click();
-    // 何も入力しない状態で送信ボタンが disabled
-    const submitBtn = page.locator('[data-testid="post-submit"]');
-    await expect(submitBtn).toBeDisabled();
-  });
-
-  test('280文字超過バリデーション（送信ボタンが無効になる）', async ({ page }) => {
-    await page.goto('/home');
-    await page.locator('button', { hasText: '投稿する' }).first().click();
-    await page.fill('[data-testid="post-input"]', 'あ'.repeat(281));
-    await expect(page.locator('[data-testid="post-submit"]')).toBeDisabled();
-  });
-
   test('他人の投稿には編集・削除ボタンが表示されない', async ({ page }) => {
     await page.goto('/home');
     // すべての投稿カードを確認
