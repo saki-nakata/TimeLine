@@ -65,14 +65,14 @@ case "$TEST_TYPE" in
 
       local SCENARIO PASSED REQUESTS RPS AVG P95 P99 ERR MAXVUS TIMESTAMP
       SCENARIO=$(grep '"scenario"' "$LATEST_JSON" | sed 's/.*: "\(.*\)".*/\1/')
-      PASSED=$(grep '"passed"' "$LATEST_JSON" | sed 's/.*: \(.*\),/\1/')
-      REQUESTS=$(grep '"requests"' "$LATEST_JSON" | sed 's/.*: \(.*\),/\1/')
-      RPS=$(grep '"rps"' "$LATEST_JSON" | sed 's/.*: \(.*\),/\1/')
-      AVG=$(grep '"avg"' "$LATEST_JSON" | sed 's/.*: \(.*\),/\1/')
-      P95=$(grep '"p95"' "$LATEST_JSON" | sed 's/.*: \(.*\),/\1/')
-      P99=$(grep '"p99"' "$LATEST_JSON" | sed 's/.*: \(.*\),/\1/')
-      ERR=$(grep '"errorRate"' "$LATEST_JSON" | sed 's/.*: \(.*\),*/\1/')
-      MAXVUS=$(grep '"maxVUs"' "$LATEST_JSON" | sed 's/.*: \(.*\)/\1/' | tr -d ' \r\n}')
+      PASSED=$(grep '"passed"'    "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      REQUESTS=$(grep '"requests"' "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      RPS=$(grep '"rps"'          "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      AVG=$(grep '"avg"'          "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      P95=$(grep '"p95"'          "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      P99=$(grep '"p99"'          "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      ERR=$(grep '"errorRate"'    "$LATEST_JSON" | sed 's/.*: //; s/[, ]*$//')
+      MAXVUS=$(grep '"maxVUs"'    "$LATEST_JSON" | sed 's/.*: //; s/[, }]*$//')
       TIMESTAMP=$(grep '"timestamp"' "$LATEST_JSON" | sed 's/.*: "\(.*\)".*/\1/')
 
       local BADGE="badge-info" BADGE_TEXT="N/A"
@@ -109,12 +109,12 @@ case "$TEST_TYPE" in
         echo "    <tbody>"
         while IFS= read -r jf; do
           S=$(grep '"scenario"' "$jf" | sed 's/.*: "\(.*\)".*/\1/')
-          P=$(grep '"passed"' "$jf" | sed 's/.*: \(.*\),/\1/')
-          R=$(grep '"requests"' "$jf" | sed 's/.*: \(.*\),/\1/')
-          P9=$(grep '"p95"' "$jf" | sed 's/.*: \(.*\),/\1/')
-          P99V=$(grep '"p99"' "$jf" | sed 's/.*: \(.*\),/\1/')
-          E=$(grep '"errorRate"' "$jf" | sed 's/.*: \(.*\),*/\1/')
-          MV=$(grep '"maxVUs"' "$jf" | sed 's/.*: \(.*\)/\1/' | tr -d ' \r\n}')
+          P=$(grep '"passed"'    "$jf" | sed 's/.*: //; s/[, ]*$//')
+          R=$(grep '"requests"'  "$jf" | sed 's/.*: //; s/[, ]*$//')
+          P9=$(grep '"p95"'      "$jf" | sed 's/.*: //; s/[, ]*$//')
+          P99V=$(grep '"p99"'    "$jf" | sed 's/.*: //; s/[, ]*$//')
+          E=$(grep '"errorRate"' "$jf" | sed 's/.*: //; s/[, ]*$//')
+          MV=$(grep '"maxVUs"'   "$jf" | sed 's/.*: //; s/[, }]*$//')
           EPCT=$(awk "BEGIN{printf \"%.2f\", ${E:-0}*100}")
           BDG="badge-info"; BT="N/A"
           [ "$P" = "true" ]  && BDG="badge-pass" && BT="PASS"
