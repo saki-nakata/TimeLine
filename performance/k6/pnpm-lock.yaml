@@ -1,0 +1,32 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    devDependencies:
+      '@types/k6':
+        specifier: ^2.0.0
+        version: 2.0.0
+      prettier:
+        specifier: ^3.5.3
+        version: 3.8.4
+
+packages:
+
+  '@types/k6@2.0.0':
+    resolution: {integrity: sha512-ztO2fVOAQxtCpF6VWTn8O6FW6Z4DpjhY+XvD2GpCe/+fAfekD45bQ+vrM0B0C0c5ajLpVgWTMlLu9dKZ1nI+wg==}
+
+  prettier@3.8.4:
+    resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+snapshots:
+
+  '@types/k6@2.0.0': {}
+
+  prettier@3.8.4: {}

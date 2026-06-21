@@ -22,10 +22,9 @@ export function getUserPosts(
 }
 
 export function searchUsers(headers: RequestHeaders, keyword: string) {
-  const res = http.get(
-    `${BASE_URL}/api/users/search?q=${encodeURIComponent(keyword)}`,
-    { headers },
-  );
+  const res = http.get(`${BASE_URL}/api/users/search?q=${encodeURIComponent(keyword)}`, {
+    headers,
+  });
   check(res, { 'searchUsers: status 200': (r) => r.status === 200 });
   return res;
 }

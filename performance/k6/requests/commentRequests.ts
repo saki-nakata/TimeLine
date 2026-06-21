@@ -14,25 +14,15 @@ export function createComment(
   postId: number,
   content: string,
 ): number | null {
-  const res = http.post(
-    `${BASE_URL}/api/posts/${postId}/comments`,
-    JSON.stringify({ content }),
-    { headers },
-  );
+  const res = http.post(`${BASE_URL}/api/posts/${postId}/comments`, JSON.stringify({ content }), {
+    headers,
+  });
   check(res, { 'createComment: status 201': (r) => r.status === 201 });
   const body = res.json() as { id?: number } | null;
   return body?.id ?? null;
 }
 
-export function deleteComment(
-  headers: RequestHeaders,
-  postId: number,
-  commentId: number,
-): void {
-  const res = http.del(
-    `${BASE_URL}/api/posts/${postId}/comments/${commentId}`,
-    null,
-    { headers },
-  );
+export function deleteComment(headers: RequestHeaders, postId: number, commentId: number): void {
+  const res = http.del(`${BASE_URL}/api/posts/${postId}/comments/${commentId}`, null, { headers });
   check(res, { 'deleteComment: status 204': (r) => r.status === 204 });
 }

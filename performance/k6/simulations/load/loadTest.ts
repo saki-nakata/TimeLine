@@ -40,7 +40,7 @@ export function setup(): SetupData {
 export default function (data: SetupData): void {
   const r = Math.random();
 
-  if (r < 0.60) {
+  if (r < 0.6) {
     // Timeline 60%
     timelineScenario();
   } else if (r < 0.75) {
@@ -49,7 +49,7 @@ export default function (data: SetupData): void {
   } else if (r < 0.825) {
     // Like 7.5% (Interaction 15% を like/comment で折半)
     if (data.postId !== null) likeScenario(data.postId);
-  } else if (r < 0.90) {
+  } else if (r < 0.9) {
     // Comment 7.5%
     if (data.postId !== null) commentScenario(data.postId);
   } else {

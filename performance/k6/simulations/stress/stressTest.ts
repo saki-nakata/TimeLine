@@ -44,13 +44,13 @@ export function setup(): SetupData {
 export default function (data: SetupData): void {
   const r = Math.random();
 
-  if (r < 0.60) {
+  if (r < 0.6) {
     timelineScenario();
   } else if (r < 0.75) {
     postCreateScenario();
   } else if (r < 0.825) {
     if (data.postId !== null) likeScenario(data.postId);
-  } else if (r < 0.90) {
+  } else if (r < 0.9) {
     if (data.postId !== null) commentScenario(data.postId);
   } else {
     profileScenario(data.userId);

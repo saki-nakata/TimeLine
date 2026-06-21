@@ -1,7 +1,12 @@
 {
   "name": "k6-performance-tests",
   "private": true,
+  "scripts": {
+    "format": "prettier --write \"**/*.ts\"",
+    "format:check": "prettier --check \"**/*.ts\""
+  },
   "devDependencies": {
-    "@types/k6": "^0.56.0"
+    "@types/k6": "^2.0.0",
+    "prettier": "^3.5.3"
   }
 }

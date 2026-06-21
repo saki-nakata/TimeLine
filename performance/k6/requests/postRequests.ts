@@ -24,11 +24,15 @@ export function getPost(headers: RequestHeaders, postId: number) {
 function buildMultipart(fields: Record<string, string>): { body: string; contentType: string } {
   const boundary = `----k6Boundary${Math.random().toString(36).slice(2)}`;
   const parts = Object.entries(fields)
-    .map(([name, value]) =>
-      `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}`,
+    .map(
+      ([name, value]) =>
+        `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n${value}`,
     )
     .join('\r\n');
-  return { body: `${parts}\r\n--${boundary}--`, contentType: `multipart/form-data; boundary=${boundary}` };
+  return {
+    body: `${parts}\r\n--${boundary}--`,
+    contentType: `multipart/form-data; boundary=${boundary}`,
+  };
 }
 
 export function createPost(headers: RequestHeaders, content: string): number | null {

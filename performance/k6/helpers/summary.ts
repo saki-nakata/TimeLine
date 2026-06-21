@@ -29,47 +29,58 @@ function val(metric: Metric | undefined, key: string): number | null {
   return metric?.values?.[key] ?? null;
 }
 
-function jsonSummary(data: Record<string, unknown>, scenarioName: string, testType: string, timestamp: string): string {
+function jsonSummary(
+  data: Record<string, unknown>,
+  scenarioName: string,
+  testType: string,
+  timestamp: string,
+): string {
   const m = data.metrics as Metrics;
   const thresholdRows = Object.entries(m)
     .filter(([, metric]) => metric.thresholds)
     .flatMap(([, metric]) => Object.values(metric.thresholds!).map((r) => r.ok));
   const allPass = thresholdRows.length === 0 || thresholdRows.every(Boolean);
 
-  return JSON.stringify({
-    scenario: scenarioName,
-    type: testType,
-    timestamp,
-    passed: allPass,
-    metrics: {
-      requests: val(m['http_reqs'], 'count') ?? 0,
-      rps: val(m['http_reqs'], 'rate') ?? 0,
-      avg: val(m['http_req_duration'], 'avg') ?? 0,
-      p95: val(m['http_req_duration'], 'p(95)') ?? 0,
-      p99: val(m['http_req_duration'], 'p(99)') ?? 0,
-      errorRate: val(m['http_req_failed'], 'rate') ?? 0,
-      maxVUs: val(m['vus_max'], 'max') ?? 0,
+  return JSON.stringify(
+    {
+      scenario: scenarioName,
+      type: testType,
+      timestamp,
+      passed: allPass,
+      metrics: {
+        requests: val(m['http_reqs'], 'count') ?? 0,
+        rps: val(m['http_reqs'], 'rate') ?? 0,
+        avg: val(m['http_req_duration'], 'avg') ?? 0,
+        p95: val(m['http_req_duration'], 'p(95)') ?? 0,
+        p99: val(m['http_req_duration'], 'p(99)') ?? 0,
+        errorRate: val(m['http_req_failed'], 'rate') ?? 0,
+        maxVUs: val(m['vus_max'], 'max') ?? 0,
+      },
     },
-  }, null, 2);
+    null,
+    2,
+  );
 }
 
 function htmlReport(data: Record<string, unknown>, scenarioName: string, testType: string): string {
   const m = data.metrics as Metrics;
 
-  const duration  = val(m['http_req_duration'], 'avg');
-  const p95       = val(m['http_req_duration'], 'p(95)');
-  const p99       = val(m['http_req_duration'], 'p(99)');
+  const duration = val(m['http_req_duration'], 'avg');
+  const p95 = val(m['http_req_duration'], 'p(95)');
+  const p99 = val(m['http_req_duration'], 'p(99)');
   const errorRate = val(m['http_req_failed'], 'rate');
   const totalReqs = val(m['http_reqs'], 'count');
-  const rps       = val(m['http_reqs'], 'rate');
-  const maxVUs    = val(m['vus_max'], 'max');
+  const rps = val(m['http_reqs'], 'rate');
+  const maxVUs = val(m['vus_max'], 'max');
 
   const thresholdRows = Object.entries(m)
     .filter(([, metric]) => metric.thresholds)
     .flatMap(([name, metric]) =>
       Object.entries(metric.thresholds!).map(([condition, result]) => ({
-        name, condition, ok: result.ok,
-      }))
+        name,
+        condition,
+        ok: result.ok,
+      })),
     );
 
   const allPass = thresholdRows.every((r) => r.ok);
@@ -81,16 +92,16 @@ function htmlReport(data: Record<string, unknown>, scenarioName: string, testTyp
         : `<span class="badge badge-fail">FAIL</span>`;
 
   const chartLabels = ['avg', 'p(50)', 'p(90)', 'p(95)', 'p(99)', 'max'];
-  const chartKeys   = ['avg', 'med',   'p(90)', 'p(95)', 'p(99)', 'max'];
-  const chartData   = chartKeys.map((k) => (val(m['http_req_duration'], k) ?? 0).toFixed(1));
+  const chartKeys = ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'];
+  const chartData = chartKeys.map((k) => (val(m['http_req_duration'], k) ?? 0).toFixed(1));
 
   const metricRows = Object.entries(m)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([name, metric]) => {
-      const avg  = val(metric, 'avg');
+      const avg = val(metric, 'avg');
       const p95v = val(metric, 'p(95)');
       const p99v = val(metric, 'p(99)');
-      const cnt  = val(metric, 'count');
+      const cnt = val(metric, 'count');
       const rate = val(metric, 'rate');
       return `<tr>
         <td class="metric-name">${name}</td>
@@ -122,9 +133,10 @@ function htmlReport(data: Record<string, unknown>, scenarioName: string, testTyp
          </table>`
       : `<h2>Thresholds</h2><p class="muted">No thresholds defined for this test type.</p>`;
 
-  const p95Color = p95  !== null ? (p95  < 500  ? 'good' : p95  < 1000 ? 'warn' : 'bad') : '';
-  const p99Color = p99  !== null ? (p99  < 1000 ? 'good' : p99  < 2000 ? 'warn' : 'bad') : '';
-  const errColor = errorRate !== null ? (errorRate < 0.01 ? 'good' : errorRate < 0.05 ? 'warn' : 'bad') : '';
+  const p95Color = p95 !== null ? (p95 < 500 ? 'good' : p95 < 1000 ? 'warn' : 'bad') : '';
+  const p99Color = p99 !== null ? (p99 < 1000 ? 'good' : p99 < 2000 ? 'warn' : 'bad') : '';
+  const errColor =
+    errorRate !== null ? (errorRate < 0.01 ? 'good' : errorRate < 0.05 ? 'warn' : 'bad') : '';
 
   return `<!DOCTYPE html>
 <html lang="ja">
