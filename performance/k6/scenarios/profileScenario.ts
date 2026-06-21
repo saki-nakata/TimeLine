@@ -7,6 +7,9 @@ export function profileScenario(seedUserId: number): void {
   const headers = login(TEST_USER.email, TEST_USER.password);
   getProfile(headers, seedUserId);
   sleep(1);
-  getUserPosts(headers, seedUserId);
+  const res = getUserPosts(headers, seedUserId);
+  sleep(1);
+  const cursor = (res.json('nextCursor') as string | null) ?? null;
+  if (cursor) getUserPosts(headers, seedUserId, cursor);
   sleep(1);
 }
