@@ -166,10 +166,10 @@ export default function Timeline({ postFormOpen, setPostFormOpen }: TimelineProp
 
       {/* タブ */}
       <div className="flex items-center border-b border-gray-200">
-        <button className={tabClass('all')} onClick={() => handleTabSwitch('all')}>
+        <button data-testid="tab-all" className={tabClass('all')} onClick={() => handleTabSwitch('all')}>
           全て
         </button>
-        <button className={tabClass('following')} onClick={() => handleTabSwitch('following')}>
+        <button data-testid="tab-following" className={tabClass('following')} onClick={() => handleTabSwitch('following')}>
           フォロー中
         </button>
       </div>

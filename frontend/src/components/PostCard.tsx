@@ -60,6 +60,7 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
 
   return (
     <article
+      data-testid="post-card"
       className="flex gap-3 px-4 py-3.5 border-b border-[#eff3f4] hover:bg-[#f7f9f9] transition-colors cursor-pointer"
       onClick={() => navigate(`/posts/${post.id}`)}
     >
@@ -117,6 +118,8 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
         <div className="flex items-center">
           <div className="flex gap-4">
             <button
+              data-testid="like-button"
+              data-liked={post.likedByCurrentUser ? 'true' : 'false'}
               onClick={(e) => { e.stopPropagation(); onLikeToggle(post); }}
               className={`flex items-center gap-1.5 text-[14px] px-2.5 py-1.5 rounded-full transition-colors ${
                 post.likedByCurrentUser
@@ -125,9 +128,10 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
               }`}
             >
               <IconHeart filled={post.likedByCurrentUser} />
-              <span>{post.likeCount}</span>
+              <span data-testid="like-count">{post.likeCount}</span>
             </button>
             <button
+              data-testid="comment-button"
               onClick={(e) => { e.stopPropagation(); onCommentClick(post); }}
               className="flex items-center gap-1.5 text-[14px] text-[#536471] hover:text-[#1d9bf0] hover:bg-[#e8f5fe] px-2.5 py-1.5 rounded-full transition-colors"
             >
@@ -139,6 +143,7 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
           {isOwner && (
             <div className="flex items-center gap-1 ml-auto">
               <button
+                data-testid="edit-button"
                 onClick={(e) => { e.stopPropagation(); onEdit(post); }}
                 className="text-[#536471] hover:text-[#1d9bf0] hover:bg-[#e8f5fe] p-1.5 rounded-full transition-colors"
                 title="編集"
@@ -146,6 +151,7 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
                 <IconEdit />
               </button>
               <button
+                data-testid="delete-button"
                 onClick={(e) => { e.stopPropagation(); onDelete(post.id); }}
                 className="text-[#536471] hover:text-[#f4212e] hover:bg-[#fde8ea] p-1.5 rounded-full transition-colors"
                 title="削除"

@@ -115,6 +115,7 @@ export default function PostForm({ open, onClose, onPostCreated }: PostFormProps
             placeholder="いまどうしてる？"
             rows={4}
             autoFocus
+            data-testid="post-input"
             className="w-full resize-none text-base text-[#0f1419] placeholder-gray-400 border border-gray-200 rounded-lg p-3 outline-none focus:border-[#1d9bf0]"
           />
 
@@ -160,6 +161,7 @@ export default function PostForm({ open, onClose, onPostCreated }: PostFormProps
               <button
                 type="submit"
                 disabled={!canSubmit}
+                data-testid="post-submit"
                 className="rounded-full bg-[#1d9bf0] px-4 py-1.5 text-sm font-bold text-white disabled:opacity-50"
               >
                 {submitting ? '投稿中...' : '投稿する'}

@@ -1,0 +1,17 @@
+{
+  "name": "timeline-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test scenarios/",
+    "test:perf": "playwright test performance/",
+    "test:all": "playwright test",
+    "report": "playwright show-report results/report"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

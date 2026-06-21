@@ -37,6 +37,7 @@ export default function FollowButton({ userId, isFollowing, followerCount, onFol
   if (isFollowing) {
     return (
       <button
+        data-testid="follow-button"
         onClick={handleClick}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -50,6 +51,7 @@ export default function FollowButton({ userId, isFollowing, followerCount, onFol
 
   return (
     <button
+      data-testid="follow-button"
       onClick={handleClick}
       disabled={loading}
       className="rounded-full bg-[#0f1419] px-4 py-1.5 text-sm font-bold text-white hover:bg-[#272c30] transition-colors disabled:opacity-50 min-w-[100px]"

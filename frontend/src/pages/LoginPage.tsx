@@ -82,7 +82,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} noValidate>
             {error && (
-              <div className="mb-4 text-sm text-[#f4212e] bg-[#fde8ea] rounded-lg px-3 py-2">
+              <div data-testid="login-error" className="mb-4 text-sm text-[#f4212e] bg-[#fde8ea] rounded-lg px-3 py-2">
                 {error}
               </div>
             )}
@@ -98,6 +98,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 autoComplete="email"
+                data-testid="email-input"
                 className="w-full border border-[#cfd9de] rounded-lg text-sm text-[#0f1419] outline-none focus:border-[#1d9bf0] focus:shadow-[0_0_0_3px_rgba(29,155,240,0.15)] transition"
                 style={{ padding: '13px 16px' }}
               />
@@ -114,6 +115,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="パスワード"
                 autoComplete="current-password"
+                data-testid="password-input"
                 className="w-full border border-[#cfd9de] rounded-lg text-sm text-[#0f1419] outline-none focus:border-[#1d9bf0] focus:shadow-[0_0_0_3px_rgba(29,155,240,0.15)] transition"
                 style={{ padding: '13px 16px' }}
               />
@@ -122,6 +124,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
+              data-testid="login-submit"
               className="w-full bg-[#1d9bf0] hover:bg-[#1a8cd8] disabled:opacity-50 text-white font-bold rounded-full text-[15px] transition"
               style={{ padding: '10px 20px' }}
             >

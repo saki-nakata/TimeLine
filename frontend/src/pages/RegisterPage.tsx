@@ -68,7 +68,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           {error && (
-            <div className="mb-4 text-sm text-[#f4212e] bg-[#fde8ea] rounded-lg px-3 py-2">
+            <div data-testid="register-error" className="mb-4 text-sm text-[#f4212e] bg-[#fde8ea] rounded-lg px-3 py-2">
               {error}
             </div>
           )}
@@ -85,6 +85,7 @@ export default function RegisterPage() {
               placeholder="半角英数字・アンダースコア"
               autoComplete="username"
               maxLength={50}
+              data-testid="username-input"
               className={inputClass}
               style={{ padding: '10px 14px' }}
             />
@@ -101,6 +102,7 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               autoComplete="email"
+              data-testid="register-email-input"
               className={inputClass}
               style={{ padding: '10px 14px' }}
             />
@@ -117,6 +119,7 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="パスワード"
               autoComplete="new-password"
+              data-testid="register-password-input"
               className={inputClass}
               style={{ padding: '10px 14px' }}
             />
@@ -133,6 +136,7 @@ export default function RegisterPage() {
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="もう一度入力"
               autoComplete="new-password"
+              data-testid="register-confirm-input"
               className={inputClass}
               style={{ padding: '10px 14px' }}
             />
@@ -141,6 +145,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
+            data-testid="register-submit"
             className="w-full bg-[#1d9bf0] hover:bg-[#1a8cd8] disabled:opacity-50 text-white font-bold rounded-full text-[15px] transition"
             style={{ padding: '10px 20px' }}
           >
