@@ -10,13 +10,7 @@ TEST_TYPE="${1:-load}"
 case "$TEST_TYPE" in
   smoke)
     SIMULATIONS=(
-      "${SCRIPT_DIR}/simulations/smoke/authSmoke.ts"
-      "${SCRIPT_DIR}/simulations/smoke/timelineSmoke.ts"
-      "${SCRIPT_DIR}/simulations/smoke/postCreateSmoke.ts"
-      "${SCRIPT_DIR}/simulations/smoke/likeSmoke.ts"
-      "${SCRIPT_DIR}/simulations/smoke/commentSmoke.ts"
-      "${SCRIPT_DIR}/simulations/smoke/profileSmoke.ts"
-      "${SCRIPT_DIR}/simulations/smoke/userSearchSmoke.ts"
+      "${SCRIPT_DIR}/simulations/smoke/smokeTest.ts"
     )
     ;;
   load)
