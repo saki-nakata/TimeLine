@@ -72,6 +72,10 @@ jobs:
         working-directory: e2e
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Grant execute permission to gradlew
+        working-directory: backend
+        run: chmod +x gradlew
+
       - name: Start backend
         working-directory: backend
         env:
