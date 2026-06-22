@@ -98,12 +98,12 @@ jobs:
       - name: Wait for backend
         run: |
           echo "Waiting for backend..."
-          for i in $(seq 1 60); do
+          for i in $(seq 1 120); do
             if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
               echo "Backend is up"
               exit 0
             fi
-            sleep 3
+            sleep 5
           done
           echo "Backend did not start in time"
           exit 1
