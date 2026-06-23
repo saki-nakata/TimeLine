@@ -30,11 +30,14 @@ async function saveStorageState(email: string, password: string, outputPath: str
 }
 
 export default async function globalSetup() {
-  console.log('\n[E2E Setup] テストユーザーを作成しています...');
-
-  for (const user of Object.values(TEST_USERS)) {
-    await registerUser(user.username, user.email, user.password);
-    console.log(`  - ${user.username} 登録済み`);
+  if (!process.env.CI) {
+    console.log('\n[E2E Setup] テストユーザーを作成しています...');
+    for (const user of Object.values(TEST_USERS)) {
+      await registerUser(user.username, user.email, user.password);
+      console.log(`  - ${user.username} 登録済み`);
+    }
+  } else {
+    console.log('\n[E2E Setup] CI環境のためユーザー登録をスキップ（ワークフローのseedステップで登録済み）');
   }
 
   console.log('[E2E Setup] storageState を保存しています...');

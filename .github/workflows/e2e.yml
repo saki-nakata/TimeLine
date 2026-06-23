@@ -130,8 +130,19 @@ jobs:
           echo "Frontend did not start in time"
           exit 1
 
+      - name: Seed test users
+        run: |
+          curl -s -X POST http://localhost:8080/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"username":"e2e_user_alice","email":"e2e_alice@test.example","password":"E2eTest1234!"}' || true
+          curl -s -X POST http://localhost:8080/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"username":"e2e_user_bob","email":"e2e_bob@test.example","password":"E2eTest1234!"}' || true
+
       - name: Run E2E tests
         working-directory: e2e
+        env:
+          CI: true
         run: pnpm exec playwright test scenarios/ --project=chromium
 
       - name: Upload test results
