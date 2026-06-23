@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Tag(name = "認証", description = "ユーザー登録・ログイン・セッション管理")
 @RestController
@@ -83,7 +84,8 @@ public class AuthController {
     public ResponseEntity<UserResponse> refresh(HttpServletRequest request, HttpServletResponse response) {
         String rawRefreshToken = extractCookie(request, REFRESH_COOKIE_NAME);
         if (rawRefreshToken == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "リフレッシュトークンが見つかりません");
         }
         User user = authService.refreshTokens(rawRefreshToken);
         issueTokenPair(response, user.getId());

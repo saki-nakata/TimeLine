@@ -35,7 +35,10 @@ public class CommentController {
     }
 
     @Operation(summary = "コメント一覧取得")
-    @ApiResponse(responseCode = "200", description = "取得成功")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "取得成功"),
+        @ApiResponse(responseCode = "404", description = "投稿が見つかりません")
+    })
     @GetMapping
     public ResponseEntity<List<CommentResponse>> getComments(
             @PathVariable Long postId) {
