@@ -1,22 +1,17 @@
 name: E2E Tests
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
-      - 'e2e/**'
   pull_request:
     branches: [main]
     paths:
       - 'frontend/**'
       - 'backend/**'
       - 'e2e/**'
+      - '.github/workflows/e2e.yml'
 
 jobs:
   e2e:
-    name: Playwright E2E (Chromium)
+    name: Playwright E2E (Chromium + Firefox)
     runs-on: ubuntu-latest
 
     services:
@@ -68,9 +63,17 @@ jobs:
         working-directory: e2e
         run: pnpm install
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('e2e/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
       - name: Install Playwright browsers
         working-directory: e2e
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium firefox
 
       - name: Grant execute permission to gradlew
         working-directory: backend
@@ -143,7 +146,7 @@ jobs:
         working-directory: e2e
         env:
           CI: true
-        run: pnpm exec playwright test scenarios/ --project=chromium
+        run: pnpm exec playwright test scenarios/ --project=chromium --project=firefox
 
       - name: Upload test results
         if: always()
