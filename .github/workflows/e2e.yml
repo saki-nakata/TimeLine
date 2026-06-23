@@ -132,7 +132,7 @@ jobs:
 
       - name: Run E2E tests
         working-directory: e2e
-        run: pnpm test
+        run: pnpm exec playwright test scenarios/ --project=chromium
 
       - name: Upload test results
         if: always()

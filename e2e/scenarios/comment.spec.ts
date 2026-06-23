@@ -1,20 +1,34 @@
 import { expect, type Page } from '@playwright/test';
 import { test } from '../fixtures/test.fixture';
-import { STORAGE_STATE_PATH, E2E_COMMENT_PREFIX } from '../fixtures/constants';
+import { STORAGE_STATE_PATH, E2E_COMMENT_PREFIX, E2E_POST_PREFIX } from '../fixtures/constants';
 
 test.use({ storageState: STORAGE_STATE_PATH });
 
 test.describe('コメント', () => {
-  async function openFirstPostDetail(page: Page) {
+  let postUrl: string;
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext({ storageState: STORAGE_STATE_PATH });
+    const page = await context.newPage();
     await page.goto('/home');
-    const card = page.locator('[data-testid="post-card"]').first();
-    await card.waitFor({ timeout: 10000 });
-    await card.click();
+    const content = `${E2E_POST_PREFIX} コメントテスト用投稿 ${Date.now()}`;
+    await page.locator('button', { hasText: '投稿する' }).first().click();
+    await page.fill('[data-testid="post-input"]', content);
+    await page.click('[data-testid="post-submit"]');
+    await page.locator('[data-testid="post-card"]').filter({ hasText: content }).waitFor({ timeout: 10000 });
+    await page.locator('[data-testid="post-card"]').filter({ hasText: content }).click();
+    await page.waitForURL('**/posts/**');
+    postUrl = page.url();
+    await context.close();
+  });
+
+  async function openPostDetail(page: Page) {
+    await page.goto(postUrl);
     await page.waitForURL('**/posts/**');
   }
 
   test('投稿詳細ページでコメント一覧が表示される', async ({ page }) => {
-    await openFirstPostDetail(page);
+    await openPostDetail(page);
     // コメントエリアが表示される（コメントがなくてもメッセージが表示される）
     await expect(
       page.locator('[data-testid="comment-item"]').first()
@@ -23,7 +37,7 @@ test.describe('コメント', () => {
   });
 
   test('コメント作成 → 一覧に反映される', async ({ page }) => {
-    await openFirstPostDetail(page);
+    await openPostDetail(page);
     const comment = `${E2E_COMMENT_PREFIX} テストコメント ${Date.now()}`;
 
     await page.fill('[data-testid="detail-comment-input"]', comment);
@@ -33,7 +47,7 @@ test.describe('コメント', () => {
   });
 
   test('コメント削除（自分のコメントのみ削除可）', async ({ page }) => {
-    await openFirstPostDetail(page);
+    await openPostDetail(page);
     const comment = `${E2E_COMMENT_PREFIX} 削除コメント ${Date.now()}`;
 
     await page.fill('[data-testid="detail-comment-input"]', comment);

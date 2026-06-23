@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from '../fixtures/test.fixture';
 import { STORAGE_STATE_PATH, E2E_POST_PREFIX } from '../fixtures/constants';
 
 test.use({ storageState: STORAGE_STATE_PATH });
@@ -26,18 +27,22 @@ test.describe('投稿 CRUD', () => {
     expect(page.url()).toMatch(/\/posts\/\d+/);
   });
 
-  test('他人の投稿には編集・削除ボタンが表示されない', async ({ page }) => {
-    await page.goto('/home');
-    // すべての投稿カードを確認
-    await page.locator('[data-testid="post-card"]').first().waitFor({ timeout: 10000 });
-    // 自分以外の投稿には edit-button / delete-button が存在しない
-    // （自分の投稿だけ isOwner=true で表示される実装のため、他人の投稿では存在しない）
-    const cards = page.locator('[data-testid="post-card"]');
+  test('他人の投稿には編集・削除ボタンが表示されない', async ({ alicePage, bobPage }) => {
+    // bob が投稿を作成
+    await bobPage.goto('/home');
+    const bobPost = `${E2E_POST_PREFIX} bob投稿 ${Date.now()}`;
+    await bobPage.locator('button', { hasText: '投稿する' }).first().click();
+    await bobPage.fill('[data-testid="post-input"]', bobPost);
+    await bobPage.click('[data-testid="post-submit"]');
+    await bobPage.locator('[data-testid="post-card"]').filter({ hasText: bobPost }).waitFor({ timeout: 10000 });
+
+    // alice のホームに bob の投稿が表示され、edit/delete ボタンがないことを確認
+    await alicePage.goto('/home');
+    await alicePage.locator('[data-testid="post-card"]').first().waitFor({ timeout: 10000 });
+    const cards = alicePage.locator('[data-testid="post-card"]');
     const count = await cards.count();
-    // 少なくとも1枚の投稿カードで edit/delete が表示されていないことを確認
-    // （alice と bob が存在するため、どちらかの投稿が見える）
     let foundOtherUserPost = false;
-    for (let i = 0; i < Math.min(count, 5); i++) {
+    for (let i = 0; i < Math.min(count, 10); i++) {
       const card = cards.nth(i);
       const editBtn = card.locator('[data-testid="edit-button"]');
       const deleteBtn = card.locator('[data-testid="delete-button"]');
