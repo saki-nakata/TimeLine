@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -36,13 +38,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                .collect(Collectors.joining(", "));
-        LOG.warn("Validation failed", StructuredArguments.kv("fields", message));
-        return ResponseEntity.badRequest()
-                .body(Map.of("message", message));
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, List<String>> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.groupingBy(
+                        e -> e.getField(),
+                        LinkedHashMap::new,
+                        Collectors.mapping(e -> e.getDefaultMessage(), Collectors.toList())
+                ));
+        LOG.warn("Validation failed", StructuredArguments.kv("fields", fieldErrors));
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", "入力値が正しくありません");
+        body.put("errors", fieldErrors);
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(Exception.class)

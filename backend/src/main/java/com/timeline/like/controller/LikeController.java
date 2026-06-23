@@ -30,7 +30,9 @@ public class LikeController {
     @Operation(summary = "いいねを追加")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "追加成功"),
-        @ApiResponse(responseCode = "401", description = "未認証")
+        @ApiResponse(responseCode = "401", description = "未認証"),
+        @ApiResponse(responseCode = "404", description = "投稿が見つかりません"),
+        @ApiResponse(responseCode = "409", description = "すでにいいね済み")
     })
     @PostMapping
     public ResponseEntity<LikeResponse> addLike(
@@ -42,7 +44,8 @@ public class LikeController {
     @Operation(summary = "いいねを取り消し")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "取り消し成功"),
-        @ApiResponse(responseCode = "401", description = "未認証")
+        @ApiResponse(responseCode = "401", description = "未認証"),
+        @ApiResponse(responseCode = "404", description = "投稿が見つかりません")
     })
     @DeleteMapping
     public ResponseEntity<LikeResponse> removeLike(
