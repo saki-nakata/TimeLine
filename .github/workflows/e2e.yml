@@ -105,12 +105,13 @@ jobs:
       - name: Wait for backend
         run: |
           echo "Waiting for backend..."
-          for i in $(seq 1 120); do
-            if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
-              echo "Backend is up"
+          for i in $(seq 1 30); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health)
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "401" ] || [ "$STATUS" = "403" ]; then
+              echo "Backend is up (HTTP $STATUS)"
               exit 0
             fi
-            sleep 5
+            sleep 3
           done
           echo "Backend did not start in time"
           cat /tmp/backend.log || true
