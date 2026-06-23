@@ -76,6 +76,10 @@ jobs:
         working-directory: backend
         run: chmod +x gradlew
 
+      - name: Build backend JAR
+        working-directory: backend
+        run: ./gradlew bootJar -x test
+
       - name: Start backend
         working-directory: backend
         env:
@@ -89,8 +93,10 @@ jobs:
           AWS_SECRET_ACCESS_KEY: dummy
           AWS_S3_BUCKET_NAME: dummy
           AWS_S3_REGION: ap-northeast-1
-          SPRING_FLYWAY_TARGET: '8'
-        run: ./gradlew bootRun &
+        run: |
+          java -jar build/libs/timeline-*.jar \
+            --spring.flyway.target=8 \
+            > /tmp/backend.log 2>&1 &
 
       - name: Start frontend
         working-directory: frontend
@@ -107,6 +113,7 @@ jobs:
             sleep 5
           done
           echo "Backend did not start in time"
+          cat /tmp/backend.log || true
           exit 1
 
       - name: Wait for frontend
