@@ -46,7 +46,7 @@ erDiagram
     posts {
         BIGSERIAL id PK
         BIGINT user_id FK "NOT NULL"
-        TEXT content "NULLABLE"
+        VARCHAR(280) content "NULLABLE"
         VARCHAR(500) image_url "NULLABLE"
         BIGINT like_count "NOT NULL DEFAULT 0"
         BIGINT comment_count "NOT NULL DEFAULT 0"
@@ -58,7 +58,7 @@ erDiagram
         BIGSERIAL id PK
         BIGINT post_id FK "NOT NULL"
         BIGINT user_id FK "NOT NULL"
-        TEXT content "NOT NULL"
+        VARCHAR(280) content "NOT NULL"
         TIMESTAMPTZ created_at "NOT NULL DEFAULT NOW()"
         TIMESTAMPTZ updated_at "NOT NULL DEFAULT NOW()"
     }
@@ -127,7 +127,7 @@ erDiagram
 |---------|---------|------|-----------|------|
 | id | BIGSERIAL | NOT NULL | 自動採番 | 主キー |
 | user_id | BIGINT | NOT NULL | — | 投稿者の users.id（外部キー） |
-| content | TEXT | NULLABLE | — | 投稿テキスト（最大 280 文字）。image_url と少なくとも一方が非 NULL であること（アプリ層で強制） |
+| content | VARCHAR(280) | NULLABLE | — | 投稿テキスト（最大 280 文字）。image_url と少なくとも一方が非 NULL であること（アプリ層で強制） |
 | image_url | VARCHAR(500) | NULLABLE | — | 投稿画像の S3 URL。content と少なくとも一方が非 NULL であること |
 | like_count | BIGINT | NOT NULL | 0 | いいね数（非正規化カウンタ） |
 | comment_count | BIGINT | NOT NULL | 0 | コメント数（非正規化カウンタ） |
@@ -146,7 +146,7 @@ erDiagram
 | インデックス名 | 対象カラム | 目的 |
 |--------------|-----------|------|
 | idx_posts_user_id | user_id | プロフィール画面の投稿一覧取得 |
-| idx_posts_created_at | created_at DESC | タイムラインの新着順ソート |
+| idx_posts_id_desc | id DESC | タイムラインの新着順ソート |
 
 ---
 
@@ -159,7 +159,7 @@ erDiagram
 | id | BIGSERIAL | NOT NULL | 自動採番 | 主キー |
 | post_id | BIGINT | NOT NULL | — | 対象投稿の posts.id（外部キー） |
 | user_id | BIGINT | NOT NULL | — | コメント投稿者の users.id（外部キー） |
-| content | TEXT | NOT NULL | — | コメントテキスト |
+| content | VARCHAR(280) | NOT NULL | — | コメントテキスト（最大 280 文字） |
 | created_at | TIMESTAMPTZ | NOT NULL | NOW() | コメント日時 |
 | updated_at | TIMESTAMPTZ | NOT NULL | NOW() | 更新日時 |
 
