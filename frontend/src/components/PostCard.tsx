@@ -98,7 +98,11 @@ export default function PostCard({ post, currentUserId, onDelete, onEdit, onLike
         {/* 本文 */}
         {post.content && (
           <p className="text-[15px] text-[#0f1419] leading-relaxed whitespace-pre-wrap break-words mb-2.5">
-            {post.content}
+            {post.content.split(/(#[\w぀-鿿]+)/g).map((part, i) =>
+              part.startsWith('#')
+                ? <span key={i} className="text-[#1d9bf0]">{part}</span>
+                : part
+            )}
           </p>
         )}
 

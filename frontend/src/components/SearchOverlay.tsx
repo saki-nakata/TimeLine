@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../services/user';
+import { postService } from '../services/post';
 import type { UserProfileResponse } from '../types/user';
+import type { PostResponse } from '../types/post';
 
 const DEBOUNCE_MS = 300;
 
@@ -12,7 +14,8 @@ interface SearchOverlayProps {
 
 export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<UserProfileResponse[]>([]);
+  const [users, setUsers] = useState<UserProfileResponse[]>([]);
+  const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,28 +40,57 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
     setQuery(value);
     if (timerRef.current) clearTimeout(timerRef.current);
     if (!value.trim()) {
-      setResults([]);
+      setUsers([]);
+      setPosts([]);
       setDropdownOpen(false);
       return;
     }
     timerRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await userService.searchUsers(value.trim());
-        setResults(res.data);
+        const trimmed = value.trim();
+        const isHashtag = trimmed.startsWith('#');
+        const keyword = isHashtag ? trimmed.slice(1) : trimmed;
+        if (!keyword) return;
+
+        const [userRes, postRes] = await Promise.all([
+          isHashtag ? Promise.resolve({ data: [] }) : userService.searchUsers(trimmed),
+          isHashtag
+            ? postService.searchByHashtag(keyword, undefined, 5)
+            : postService.searchPosts(trimmed, undefined, 5),
+        ]);
+        setUsers(userRes.data as UserProfileResponse[]);
+        setPosts(postRes.data.posts);
         setDropdownOpen(true);
       } catch {
-        setResults([]);
+        setUsers([]);
+        setPosts([]);
       } finally {
         setLoading(false);
       }
     }, DEBOUNCE_MS);
   };
 
-  const handleSelect = (userId: number) => {
+  const handleSelectUser = (userId: number) => {
     onClose();
+    setQuery('');
     navigate(`/profile/${userId}`);
   };
+
+  const handleSelectPost = (postId: number) => {
+    onClose();
+    setQuery('');
+    navigate(`/posts/${postId}`);
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    setUsers([]);
+    setPosts([]);
+    setDropdownOpen(false);
+  };
+
+  const hasResults = users.length > 0 || posts.length > 0;
 
   if (!open) return null;
 
@@ -75,14 +107,14 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
             type="text"
             value={query}
             onChange={(e) => handleChange(e.target.value)}
-            onFocus={() => { if (results.length > 0) setDropdownOpen(true); }}
-            placeholder="ユーザーを検索..."
+            onFocus={() => { if (hasResults) setDropdownOpen(true); }}
+            placeholder="ユーザー・投稿・#ハッシュタグを検索..."
             data-testid="search-input"
             className="flex-1 bg-transparent text-sm text-[#0f1419] placeholder-[#536471] outline-none"
           />
           {query && (
             <button
-              onClick={() => { setQuery(''); setResults([]); setDropdownOpen(false); }}
+              onClick={handleClear}
               className="text-[#536471] hover:text-[#0f1419] flex-shrink-0"
               aria-label="クリア"
             >
@@ -94,47 +126,84 @@ export default function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           )}
           <button
             onClick={onClose}
-            className="text-[#536471] hover:text-[#0f1419] flex-shrink-0 ml-1"
+            className="text-[#1d9bf0] font-semibold text-sm flex-shrink-0 ml-1 hover:opacity-80"
             aria-label="検索を閉じる"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42z"/>
-            </svg>
+            キャンセル
           </button>
         </div>
 
         {dropdownOpen && (
-          <div className="mt-2 bg-white rounded-2xl shadow-lg border border-[#eff3f4] overflow-y-auto max-h-[60vh]">
+          <div className="mt-2 bg-white rounded-2xl shadow-lg border border-[#eff3f4] overflow-y-auto max-h-[70vh]">
             {loading ? (
               <p className="text-center text-sm text-[#536471] py-4">検索中...</p>
-            ) : results.length === 0 ? (
+            ) : !hasResults ? (
               <p data-testid="search-no-results" className="text-center text-sm text-[#536471] py-4">見つかりませんでした</p>
             ) : (
-              results.map(user => {
-                const displayName = user.displayName ?? user.username;
-                return (
-                  <div
-                    key={user.id}
-                    data-testid="search-result-item"
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-[#f7f9f9] transition-colors cursor-pointer border-b border-[#eff3f4] last:border-b-0"
-                    onClick={() => handleSelect(user.id)}
-                  >
-                    <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm bg-[#1d9bf0]">
-                          {displayName.charAt(0).toUpperCase()}
+              <>
+                {users.length > 0 && (
+                  <>
+                    <p className="px-4 pt-3 pb-1 text-[12px] font-bold text-[#536471] uppercase tracking-wide">ユーザー</p>
+                    {users.map(user => {
+                      const displayName = user.displayName ?? user.username;
+                      return (
+                        <div
+                          key={user.id}
+                          data-testid="search-result-item"
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-[#f7f9f9] transition-colors cursor-pointer"
+                          onClick={() => handleSelectUser(user.id)}
+                        >
+                          <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+                            {user.avatarUrl ? (
+                              <img src={user.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm bg-[#1d9bf0]">
+                                {displayName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-[14px] text-[#0f1419] truncate">{displayName}</p>
+                            <p className="text-[13px] text-[#536471] truncate">@{user.username}</p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-[14px] text-[#0f1419] truncate">{displayName}</p>
-                      <p className="text-[13px] text-[#536471] truncate">@{user.username}</p>
-                    </div>
-                  </div>
-                );
-              })
+                      );
+                    })}
+                  </>
+                )}
+
+                {posts.length > 0 && (
+                  <>
+                    <p className={`px-4 pb-1 text-[12px] font-bold text-[#536471] uppercase tracking-wide ${users.length > 0 ? 'pt-2 border-t border-[#eff3f4]' : 'pt-3'}`}>投稿</p>
+                    {posts.map(post => {
+                      const displayName = post.displayName ?? post.username;
+                      return (
+                        <div
+                          key={post.id}
+                          className="flex items-start gap-3 px-4 py-3 hover:bg-[#f7f9f9] transition-colors cursor-pointer"
+                          onClick={() => handleSelectPost(post.id)}
+                        >
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 mt-0.5">
+                            {post.avatarUrl ? (
+                              <img src={post.avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white font-bold text-xs bg-[#1d9bf0]">
+                                {displayName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-bold text-[13px] text-[#0f1419] truncate">{displayName} <span className="font-normal text-[#536471]">@{post.username}</span></p>
+                            {post.content && (
+                              <p className="text-[13px] text-[#0f1419] line-clamp-2 break-words">{post.content}</p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </>
             )}
           </div>
         )}

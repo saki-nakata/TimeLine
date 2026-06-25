@@ -1,0 +1,5 @@
+aws_region           = "ap-northeast-1"
+project_name         = "timeline"
+db_password          = "your-db-password-here"
+jwt_secret           = "your-jwt-secret-here"
+s3_image_bucket_name = "saki-timeline-images"

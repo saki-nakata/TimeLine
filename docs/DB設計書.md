@@ -1,8 +1,8 @@
 # TimeLine DB 設計書
 
-**バージョン:** 1.2
+**バージョン:** 1.3
 **作成日:** 2026-05-17
-**更新日:** 2026-05-24
+**更新日:** 2026-06-25
 **作成者:** Nakata Saki
 
 ---
@@ -75,6 +75,18 @@ erDiagram
         TIMESTAMPTZ created_at "NOT NULL DEFAULT NOW()"
     }
 
+    hashtags {
+        BIGSERIAL id PK
+        VARCHAR(100) tag UK "NOT NULL"
+        BIGINT post_count "NOT NULL DEFAULT 0"
+        TIMESTAMPTZ created_at "NOT NULL DEFAULT NOW()"
+    }
+
+    post_hashtags {
+        BIGINT post_id FK "NOT NULL, PK"
+        BIGINT hashtag_id FK "NOT NULL, PK"
+    }
+
     users ||--o{ posts : "writes"
     users ||--o{ comments : "writes"
     users ||--o{ post_likes : "gives"
@@ -82,6 +94,8 @@ erDiagram
     users ||--o{ user_follows : "followed by (following)"
     posts ||--o{ comments : "has"
     posts ||--o{ post_likes : "receives"
+    posts ||--o{ post_hashtags : "tagged with"
+    hashtags ||--o{ post_hashtags : "used in"
 ```
 
 ---
@@ -259,6 +273,57 @@ erDiagram
 | インデックス名 | 対象カラム | 目的 |
 |--------------|-----------|------|
 | idx_refresh_tokens_token_hash | token_hash | トークン検証時の高速ルックアップ |
+
+---
+
+### 3.7 hashtags テーブル
+
+ハッシュタグを管理するテーブル。タグ文字列を正規化（小文字）して一意管理する。
+
+| カラム名 | データ型 | NULL | デフォルト | 説明 |
+|---------|---------|------|-----------|------|
+| id | BIGSERIAL | NOT NULL | 自動採番 | 主キー |
+| tag | VARCHAR(100) | NOT NULL | — | ハッシュタグ文字列（`#` を除く、小文字正規化済み）。一意 |
+| post_count | BIGINT | NOT NULL | 0 | このタグを使った投稿数（非正規化カウンタ） |
+| created_at | TIMESTAMPTZ | NOT NULL | NOW() | 初回使用日時 |
+
+**制約:**
+
+| 制約名 | 種別 | 対象カラム | 内容 |
+|--------|------|-----------|------|
+| hashtags_pkey | PRIMARY KEY | id | — |
+| hashtags_tag_key | UNIQUE | tag | タグ文字列の重複不可 |
+
+**インデックス:**
+
+| インデックス名 | 対象カラム | 目的 |
+|--------------|-----------|------|
+| idx_hashtags_tag | tag | ハッシュタグ検索の高速ルックアップ |
+
+---
+
+### 3.8 post_hashtags テーブル
+
+投稿とハッシュタグの中間テーブル（多対多）。
+
+| カラム名 | データ型 | NULL | デフォルト | 説明 |
+|---------|---------|------|-----------|------|
+| post_id | BIGINT | NOT NULL | — | 対象投稿の posts.id（外部キー・複合主キーの一部） |
+| hashtag_id | BIGINT | NOT NULL | — | 対象ハッシュタグの hashtags.id（外部キー・複合主キーの一部） |
+
+**制約:**
+
+| 制約名 | 種別 | 対象カラム | 内容 |
+|--------|------|-----------|------|
+| post_hashtags_pkey | PRIMARY KEY | (post_id, hashtag_id) | 複合主キー |
+| post_hashtags_post_id_fkey | FOREIGN KEY | post_id → posts(id) | ON DELETE CASCADE |
+| post_hashtags_hashtag_id_fkey | FOREIGN KEY | hashtag_id → hashtags(id) | ON DELETE CASCADE |
+
+**インデックス:**
+
+| インデックス名 | 対象カラム | 目的 |
+|--------------|-----------|------|
+| idx_post_hashtags_hashtag_id | hashtag_id | ハッシュタグ別投稿一覧の取得 |
 
 ---
 

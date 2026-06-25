@@ -57,6 +57,26 @@ public class PostController {
         return ResponseEntity.ok(postService.getTimeline(cursor, limit, userId));
     }
 
+    @Operation(summary = "投稿検索（キーワード）")
+    @GetMapping("/search")
+    public ResponseEntity<TimelineResponse> searchPosts(
+            @RequestParam String q,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int limit,
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(postService.searchPosts(q, cursor, limit, userId));
+    }
+
+    @Operation(summary = "ハッシュタグ検索")
+    @GetMapping("/hashtag/{tag}")
+    public ResponseEntity<TimelineResponse> searchByHashtag(
+            @PathVariable String tag,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int limit,
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(postService.searchPostsByHashtag(tag, cursor, limit, userId));
+    }
+
     @Operation(summary = "投稿作成（画像添付可）")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "作成成功"),

@@ -98,7 +98,6 @@ jobs:
           AWS_S3_REGION: ap-northeast-1
         run: |
           java -jar build/libs/timeline-*.jar \
-            --spring.flyway.target=8 \
             > /tmp/backend.log 2>&1 &
 
       - name: Start frontend
