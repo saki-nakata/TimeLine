@@ -165,7 +165,9 @@ public class PostService {
         int safeLimit = Math.min(limit, 50);
         List<PostResponse> posts = postMapper.searchPosts(query.trim(), cursor, safeLimit + 1, currentUserId);
         boolean hasMore = posts.size() > safeLimit;
-        if (hasMore) posts = posts.subList(0, safeLimit);
+        if (hasMore) {
+            posts = posts.subList(0, safeLimit);
+        }
         Long nextCursor = hasMore ? posts.get(posts.size() - 1).getId() : null;
         return new TimelineResponse(posts, nextCursor, hasMore);
     }
@@ -177,7 +179,9 @@ public class PostService {
         int safeLimit = Math.min(limit, 50);
         List<PostResponse> posts = postMapper.findPostsByHashtag(tag.trim().toLowerCase(), cursor, safeLimit + 1, currentUserId);
         boolean hasMore = posts.size() > safeLimit;
-        if (hasMore) posts = posts.subList(0, safeLimit);
+        if (hasMore) {
+            posts = posts.subList(0, safeLimit);
+        }
         Long nextCursor = hasMore ? posts.get(posts.size() - 1).getId() : null;
         return new TimelineResponse(posts, nextCursor, hasMore);
     }
@@ -231,7 +235,9 @@ public class PostService {
 
     private Set<String> extractHashtags(String content) {
         Set<String> tags = new java.util.LinkedHashSet<>();
-        if (content == null) return tags;
+        if (content == null) {
+            return tags;
+        }
         Matcher m = HASHTAG_PATTERN.matcher(content);
         while (m.find()) {
             tags.add(m.group(1).toLowerCase());
