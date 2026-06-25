@@ -5,6 +5,7 @@ import com.timeline.model.Post;
 import com.timeline.model.User;
 import com.timeline.post.dto.PostResponse;
 import com.timeline.post.dto.TimelineResponse;
+import com.timeline.post.repository.HashtagMapper;
 import com.timeline.post.repository.PostMapper;
 import com.timeline.user.repository.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.*;
 class PostServiceTest {
 
     @Mock PostMapper postMapper;
+    @Mock HashtagMapper hashtagMapper;
     @Mock UserMapper userMapper;
     @Mock SimpMessagingTemplate messagingTemplate;
     @Mock S3StorageService s3StorageService;
