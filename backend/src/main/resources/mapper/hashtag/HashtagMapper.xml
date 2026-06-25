@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timeline.post.repository.HashtagMapper">
+
+    <select id="findIdByTag" parameterType="string" resultType="long">
+        SELECT id FROM hashtags WHERE tag = #{tag} LIMIT 1
+    </select>
+
+    <select id="findIdByTagForUpdate" parameterType="string" resultType="long">
+        SELECT id FROM hashtags WHERE tag = #{tag} LIMIT 1 FOR UPDATE
+    </select>
+
+    <insert id="insertHashtag">
+        INSERT INTO hashtags (tag) VALUES (#{tag})
+        ON CONFLICT (tag) DO NOTHING
+    </insert>
+
+    <update id="incrementPostCount">
+        UPDATE hashtags SET post_count = post_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="decrementPostCount">
+        UPDATE hashtags SET post_count = GREATEST(post_count - 1, 0) WHERE id = #{id}
+    </update>
+
+    <insert id="insertPostHashtag">
+        INSERT INTO post_hashtags (post_id, hashtag_id) VALUES (#{postId}, #{hashtagId})
+        ON CONFLICT DO NOTHING
+    </insert>
+
+    <delete id="deletePostHashtags">
+        DELETE FROM post_hashtags WHERE post_id = #{postId}
+    </delete>
+
+    <select id="findHashtagIdsByPostId" resultType="long">
+        SELECT hashtag_id FROM post_hashtags WHERE post_id = #{postId}
+    </select>
+
+</mapper>

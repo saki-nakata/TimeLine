@@ -2,6 +2,7 @@ package com.timeline.post.service;
 
 import com.timeline.post.dto.PostResponse;
 import com.timeline.post.dto.TimelineResponse;
+import com.timeline.post.repository.HashtagMapper;
 import com.timeline.post.repository.PostMapper;
 import com.timeline.user.repository.UserMapper;
 import com.timeline.common.storage.S3StorageService;
@@ -13,25 +14,32 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PostService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PostService.class);
+    private static final Pattern HASHTAG_PATTERN = Pattern.compile("#([\\w\\u3040-\\u9fff]+)");
 
     private final PostMapper postMapper;
+    private final HashtagMapper hashtagMapper;
     private final UserMapper userMapper;
     private final SimpMessagingTemplate messagingTemplate;
     private final S3StorageService s3StorageService;
 
-    public PostService(PostMapper postMapper, UserMapper userMapper,
+    public PostService(PostMapper postMapper, HashtagMapper hashtagMapper, UserMapper userMapper,
                        SimpMessagingTemplate messagingTemplate, S3StorageService s3StorageService) {
         this.postMapper = postMapper;
+        this.hashtagMapper = hashtagMapper;
         this.userMapper = userMapper;
         this.messagingTemplate = messagingTemplate;
         this.s3StorageService = s3StorageService;
@@ -56,6 +64,7 @@ public class PostService {
         return new TimelineResponse(posts, nextCursor, hasMore);
     }
 
+    @Transactional
     public PostResponse createPost(Long userId, String content, MultipartFile image) {
         boolean hasContent = content != null && !content.isBlank();
         boolean hasImage = image != null && !image.isEmpty();
@@ -75,6 +84,9 @@ public class PostService {
         post.setCreatedAt(now);
         post.setUpdatedAt(now);
         postMapper.insert(post);
+        if (hasContent) {
+            saveHashtags(post.getId(), content);
+        }
         User author = userMapper.findById(userId);
         PostResponse response = PostResponse.from(post, author);
         messagingTemplate.convertAndSend("/topic/posts", response);
@@ -85,6 +97,7 @@ public class PostService {
         return response;
     }
 
+    @Transactional
     public PostResponse updatePost(Long postId, Long requesterId, String content, MultipartFile image, boolean removeImage) {
         Post post = postMapper.findById(postId);
         if (post == null) {
@@ -115,6 +128,7 @@ public class PostService {
         post.setContent(hasContent ? content : null);
         post.setUpdatedAt(OffsetDateTime.now());
         postMapper.update(post);
+        updateHashtags(post.getId(), hasContent ? content : null);
         LOG.info("Post updated",
                 StructuredArguments.kv("event", "post_updated"),
                 StructuredArguments.kv("postId", postId));
@@ -144,6 +158,31 @@ public class PostService {
         return new TimelineResponse(posts, nextCursor, hasMore);
     }
 
+    public TimelineResponse searchPosts(String query, Long cursor, int limit, Long currentUserId) {
+        if (query == null || query.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "検索キーワードを入力してください");
+        }
+        int safeLimit = Math.min(limit, 50);
+        List<PostResponse> posts = postMapper.searchPosts(query.trim(), cursor, safeLimit + 1, currentUserId);
+        boolean hasMore = posts.size() > safeLimit;
+        if (hasMore) posts = posts.subList(0, safeLimit);
+        Long nextCursor = hasMore ? posts.get(posts.size() - 1).getId() : null;
+        return new TimelineResponse(posts, nextCursor, hasMore);
+    }
+
+    public TimelineResponse searchPostsByHashtag(String tag, Long cursor, int limit, Long currentUserId) {
+        if (tag == null || tag.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ハッシュタグを入力してください");
+        }
+        int safeLimit = Math.min(limit, 50);
+        List<PostResponse> posts = postMapper.findPostsByHashtag(tag.trim().toLowerCase(), cursor, safeLimit + 1, currentUserId);
+        boolean hasMore = posts.size() > safeLimit;
+        if (hasMore) posts = posts.subList(0, safeLimit);
+        Long nextCursor = hasMore ? posts.get(posts.size() - 1).getId() : null;
+        return new TimelineResponse(posts, nextCursor, hasMore);
+    }
+
+    @Transactional
     public void deletePost(Long postId, Long requesterId) {
         Post post = postMapper.findById(postId);
         if (post == null) {
@@ -155,9 +194,48 @@ public class PostService {
         if (post.getImageUrl() != null) {
             s3StorageService.deleteFile(post.getImageUrl());
         }
+        List<Long> hashtagIds = hashtagMapper.findHashtagIdsByPostId(postId);
+        for (Long hashtagId : hashtagIds) {
+            hashtagMapper.decrementPostCount(hashtagId);
+        }
+        hashtagMapper.deletePostHashtags(postId);
         postMapper.delete(postId);
         LOG.info("Post deleted",
                 StructuredArguments.kv("event", "post_deleted"),
                 StructuredArguments.kv("postId", postId));
+    }
+
+    private void saveHashtags(Long postId, String content) {
+        Set<String> tags = extractHashtags(content);
+        for (String tag : tags) {
+            hashtagMapper.insertHashtag(tag);
+            Long hashtagId = hashtagMapper.findIdByTag(tag);
+            if (hashtagId != null) {
+                hashtagMapper.incrementPostCount(hashtagId);
+                hashtagMapper.insertPostHashtag(postId, hashtagId);
+            }
+        }
+    }
+
+    private void updateHashtags(Long postId, String newContent) {
+        // 既存タグの post_count をデクリメントしてから削除
+        List<Long> existingHashtagIds = hashtagMapper.findHashtagIdsByPostId(postId);
+        for (Long hashtagId : existingHashtagIds) {
+            hashtagMapper.decrementPostCount(hashtagId);
+        }
+        hashtagMapper.deletePostHashtags(postId);
+        if (newContent != null && !newContent.isBlank()) {
+            saveHashtags(postId, newContent);
+        }
+    }
+
+    private Set<String> extractHashtags(String content) {
+        Set<String> tags = new java.util.LinkedHashSet<>();
+        if (content == null) return tags;
+        Matcher m = HASHTAG_PATTERN.matcher(content);
+        while (m.find()) {
+            tags.add(m.group(1).toLowerCase());
+        }
+        return tags;
     }
 }

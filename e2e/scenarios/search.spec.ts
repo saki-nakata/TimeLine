@@ -1,15 +1,15 @@
 import { test, expect, type Page } from '@playwright/test';
-import { STORAGE_STATE_PATH, TEST_USERS } from '../fixtures/constants';
+import { API_BASE_URL, STORAGE_STATE_PATH, TEST_USERS } from '../fixtures/constants';
 
 test.use({ storageState: STORAGE_STATE_PATH });
 
-test.describe('ユーザー検索', () => {
-  async function openSearch(page: Page) {
-    await page.goto('/home');
-    await page.click('[data-testid="nav-search"]');
-    await page.locator('[data-testid="search-input"]').waitFor({ state: 'visible' });
-  }
+async function openSearch(page: Page) {
+  await page.goto('/home');
+  await page.click('[data-testid="nav-search"]');
+  await page.locator('[data-testid="search-input"]').waitFor({ state: 'visible' });
+}
 
+test.describe('ユーザー検索', () => {
   test('キーワード入力 → ドロップダウンにユーザー候補が表示される', async ({ page }) => {
     await openSearch(page);
     await page.fill('[data-testid="search-input"]', TEST_USERS.bob.username);
@@ -29,5 +29,55 @@ test.describe('ユーザー検索', () => {
     await openSearch(page);
     await page.fill('[data-testid="search-input"]', 'xyzxyzxyznotexistuser12345');
     await expect(page.locator('[data-testid="search-no-results"]')).toBeVisible({ timeout: 5000 });
+  });
+});
+
+test.describe('投稿検索', () => {
+  const UNIQUE_KEYWORD = `[E2E]searchtest_${Date.now()}`;
+
+  test.beforeAll(async ({ request }) => {
+    // alice のトークンで投稿を作成
+    const loginRes = await request.post(`${API_BASE_URL}/auth/login`, {
+      data: { username: TEST_USERS.alice.username, password: TEST_USERS.alice.password },
+    });
+    expect(loginRes.ok()).toBeTruthy();
+    await request.post(`${API_BASE_URL}/posts`, {
+      multipart: { content: `${UNIQUE_KEYWORD} 投稿検索テスト用` },
+    });
+  });
+
+  test('キーワード入力 → ドロップダウンに投稿が表示される', async ({ page }) => {
+    await openSearch(page);
+    await page.fill('[data-testid="search-input"]', UNIQUE_KEYWORD);
+    await expect(page.locator('[data-testid="search-no-results"]')).not.toBeVisible({ timeout: 500 }).catch(() => {});
+    await expect(page.locator('text=' + UNIQUE_KEYWORD).first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('投稿クリック → 投稿詳細ページに遷移する', async ({ page }) => {
+    await openSearch(page);
+    await page.fill('[data-testid="search-input"]', UNIQUE_KEYWORD);
+    await page.locator('text=' + UNIQUE_KEYWORD).first().waitFor({ timeout: 5000 });
+    await page.locator('text=' + UNIQUE_KEYWORD).first().click();
+    await page.waitForURL('**/posts/**');
+    expect(page.url()).toMatch(/\/posts\/\d+/);
+  });
+});
+
+test.describe('ハッシュタグ検索', () => {
+  const UNIQUE_TAG = `e2etag${Date.now()}`;
+
+  test.beforeAll(async ({ request }) => {
+    await request.post(`${API_BASE_URL}/auth/login`, {
+      data: { username: TEST_USERS.alice.username, password: TEST_USERS.alice.password },
+    });
+    await request.post(`${API_BASE_URL}/posts`, {
+      multipart: { content: `[E2E] ハッシュタグ検索テスト #${UNIQUE_TAG}` },
+    });
+  });
+
+  test('#タグ入力 → ドロップダウンに投稿が表示される', async ({ page }) => {
+    await openSearch(page);
+    await page.fill('[data-testid="search-input"]', `#${UNIQUE_TAG}`);
+    await expect(page.locator(`text=#${UNIQUE_TAG}`).first()).toBeVisible({ timeout: 5000 });
   });
 });

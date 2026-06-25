@@ -1,0 +1,5 @@
+build/
+.gradle/
+gradle-dist-tmp/
+uploads/
+*.md

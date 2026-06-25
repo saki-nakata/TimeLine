@@ -44,4 +44,10 @@ export const postService = {
 
   deleteComment: (postId: number, commentId: number) =>
     api.delete(`/posts/${postId}/comments/${commentId}`),
+
+  searchPosts: (q: string, cursor?: number, limit = 20) =>
+    api.get<TimelineResponse>('/posts/search', { params: { q, cursor, limit } }),
+
+  searchByHashtag: (tag: string, cursor?: number, limit = 20) =>
+    api.get<TimelineResponse>(`/posts/hashtag/${encodeURIComponent(tag)}`, { params: { cursor, limit } }),
 };

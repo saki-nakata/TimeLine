@@ -55,6 +55,16 @@ logs/
 backend/uploads/
 
 # ===========================
+# Terraform
+# ===========================
+infra/.terraform/
+infra/terraform.tfvars
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/.terraform.lock.hcl
+infra/.terraform.tfstate.lock.info
+
+# ===========================
 # k6 パフォーマンステスト レポート
 # ===========================
 performance/k6/results/*.html
