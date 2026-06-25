@@ -36,14 +36,10 @@ test.describe('投稿検索', () => {
   const UNIQUE_KEYWORD = `[E2E]searchtest_${Date.now()}`;
 
   test.beforeAll(async ({ request }) => {
-    // alice のトークンで投稿を作成
-    const loginRes = await request.post(`${API_BASE_URL}/auth/login`, {
-      data: { username: TEST_USERS.alice.username, password: TEST_USERS.alice.password },
-    });
-    expect(loginRes.ok()).toBeTruthy();
-    await request.post(`${API_BASE_URL}/posts`, {
+    const res = await request.post(`${API_BASE_URL}/posts`, {
       multipart: { content: `${UNIQUE_KEYWORD} 投稿検索テスト用` },
     });
+    expect(res.ok()).toBeTruthy();
   });
 
   test('キーワード入力 → ドロップダウンに投稿が表示される', async ({ page }) => {
@@ -67,9 +63,6 @@ test.describe('ハッシュタグ検索', () => {
   const UNIQUE_TAG = `e2etag${Date.now()}`;
 
   test.beforeAll(async ({ request }) => {
-    await request.post(`${API_BASE_URL}/auth/login`, {
-      data: { username: TEST_USERS.alice.username, password: TEST_USERS.alice.password },
-    });
     await request.post(`${API_BASE_URL}/posts`, {
       multipart: { content: `[E2E] ハッシュタグ検索テスト #${UNIQUE_TAG}` },
     });
